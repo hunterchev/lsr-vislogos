@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LSR-Vis Round 7</title>
+<title>LSR-Vis Round 8</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Google+Sans+Flex:wdth,wght@125,500;125,600;125,700&family=Google+Sans:wght@400;500;700&family=Archivo:wdth,wght@125,700&family=Lexend+Exa:wght@500&family=IBM+Plex+Mono:wght@400;600&display=swap">
@@ -63,13 +63,13 @@ textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
 </head>
 <body>
 <div class="wrap">
-  <div class="nav"><a href="round8.html">Round 8 →</a><a href="round6.html">← Round 6</a></div>
-  <div class="eyebrow">Round 7 · Michroma only</div>
-  <h1>LSR-Vis <span>Round 7</span></h1>
-  <p class="lede">The font stays Michroma, the face from W444. This round only refines the wordmark: the aphron's size, style and height over the stem, the slant, the letter weight and spacing, and the color. M1 is Round 6's R1; every other version changes one thing from it, so you can see exactly what each change does. Pick one and the board below shows it in use.</p>
+  <div class="nav"><a href="round7.html">← Round 7</a></div>
+  <div class="eyebrow">Round 8 · back to W444</div>
+  <h1>LSR-Vis <span>Round 8</span></h1>
+  <p class="lede">Back to W444: Michroma in italics, LSR-VIS in capitals, and a small mark at the top right. The drip is replaced by an accurate aphron, always round and concentric. S0 is the original W444 for reference; S1 is the new baseline, and every other version changes one thing from S1.</p>
 
   <section>
-    <div class="shead"><h2>Twenty-four Michroma versions</h2><p>Each card says what changed from M1. The strip under each shows it at real small sizes. Click one to load it into the board.</p></div>
+    <div class="shead"><h2>Twenty-four versions</h2><p>Each card says what changed from S1. The strip under each shows it at real small sizes. Click one to load it into the board.</p></div>
     <p class="loading" id="loading">Loading typefaces…</p>
     <div class="cands" id="cands"></div>
   </section>
@@ -114,34 +114,35 @@ const APH={
   shell:{n:"Core and shell",s:(x,y,r,F,A)=>ring(x,y,r*.79,A,r*.42)+dot(x,y,r*.33,F)},
   accent:{n:"All accent",s:(x,y,r,F,A)=>ring(x,y,r*.92,A,r*.16)+ring(x,y,r*.6,A,r*.22)+dot(x,y,r*.27,A)},
   ink:{n:"All ink",s:(x,y,r,F,A)=>ring(x,y,r*.92,F,r*.16)+ring(x,y,r*.6,F,r*.22)+dot(x,y,r*.27,F)},
+  drip:{n:"Drip",s:(x,y,r,F,A)=>`<rect x="${N(x-r*.95)}" y="${N(y-r*.95)}" width="${N(r*1.9)}" height="${N(r*.36)}" rx="${N(r*.08)}" fill="${F}"/><path d="M${N(x-r*.55)} ${N(y-r*.62)} C${N(x-r*.55)} ${N(y-r*.1)} ${N(x-r*.3)} ${N(y+r*.05)} ${N(x-r*.3)} ${N(y+r*.5)} A${N(r*.26)} ${N(r*.26)} 0 0 0 ${N(x+r*.22)} ${N(y+r*.5)} C${N(x+r*.22)} ${N(y+r*.05)} ${N(x+r*.5)} ${N(y-r*.1)} ${N(x+r*.5)} ${N(y-r*.62)} Z" fill="${A}"/>`},
   surf:{n:"Surfactant ring",s:(x,y,r,F,A,big)=>{const n=big?22:12;let g="";for(let i=0;i<n;i++){const a=i*2*Math.PI/n;g+=dot(x+r*.84*Math.cos(a),y+r*.84*Math.sin(a),r*(big?.085:.14),A)}return g+ring(x,y,r*.55,F,r*.1)+dot(x,y,r*.28,F)}}
 };
-const B={font:"mich",slant:0,dot:"minimal",k:1.15,ls:0,sw:0,hy:false,gap:1,ink:"petrol"};
+const B={font:"mich",slant:12,dot:"minimal",ms:.62,pos:"super",ls:0,sw:0,hy:false,cs:"upper",ink:"petrol"};
 const VERS=[
-  ["M1",{},"Round 6's R1. The starting point."],
-  ["M2",{k:.95},"Smaller aphron, closer to a normal dot."],
-  ["M3",{k:1.4},"Larger aphron."],
-  ["M4",{k:1.65},"Largest aphron: the dot becomes the feature."],
-  ["M5",{dot:"shell"},"Two-tone dot: accent shell, ink core."],
-  ["M6",{dot:"surf",k:1.35},"Dot shows the surfactant ring."],
-  ["M7",{dot:"accent"},"Whole aphron in the accent color."],
-  ["M8",{dot:"ink"},"Whole aphron in ink; color only from the rings."],
-  ["M9",{slant:8},"Light 8° lean."],
-  ["M10",{slant:12},"12° lean, as in W444."],
-  ["M11",{slant:12,dot:"shell"},"W444 lean with the two-tone dot."],
-  ["M12",{sw:1.6},"A touch heavier: Michroma's strokes thickened slightly."],
-  ["M13",{sw:3.2},"Heavier: holds up better at a distance and small sizes."],
-  ["M14",{sw:3.2,slant:12},"Heavier, with the W444 lean."],
-  ["M15",{ls:-2},"Tighter letter spacing."],
-  ["M16",{ls:6},"Open letter spacing."],
-  ["M17",{ls:14,k:1.25},"Wide spacing, slightly larger aphron."],
-  ["M18",{hy:true},"Hyphen in the accent, echoing the aphron."],
-  ["M19",{hy:true,sw:1.6,k:1.3},"Accent hyphen, a touch heavier, larger aphron."],
-  ["M20",{gap:1.9},"Aphron floats higher above the stem."],
-  ["M21",{gap:.45},"Aphron sits close to the stem."],
-  ["M22",{ink:"graphite"},"Graphite and red, as in W452."],
-  ["M23",{ink:"teal"},"Teal and amber, from the cross-section diagram."],
-  ["M24",{ink:"black",dot:"ink"},"One color throughout, for stamps and etching."]
+  ["S0",{dot:"drip"},"W444 as it was, for reference."],
+  ["S1",{},"W444 with the drip replaced by the aphron."],
+  ["S2",{ms:.48},"Smaller aphron."],
+  ["S3",{ms:.8},"Larger aphron."],
+  ["S4",{ms:1,pos:"cap"},"Aphron the full height of the capitals."],
+  ["S5",{dot:"shell"},"Two-tone aphron: accent shell, ink core."],
+  ["S6",{dot:"surf",ms:.72},"Aphron showing the surfactant ring."],
+  ["S7",{dot:"accent"},"Aphron all in the accent."],
+  ["S8",{dot:"ink"},"Aphron all in ink."],
+  ["S9",{slant:8},"Softer 8° italic."],
+  ["S10",{slant:16},"Stronger 16° italic."],
+  ["S11",{sw:1.6},"A touch heavier."],
+  ["S12",{sw:3.2},"Heavier: better at a distance and small sizes."],
+  ["S13",{ls:-2},"Tighter letter spacing."],
+  ["S14",{ls:6},"Open letter spacing."],
+  ["S15",{hy:true},"Hyphen in the accent."],
+  ["S16",{pos:"tuck"},"Aphron tucked in closer to the S."],
+  ["S17",{pos:"high"},"Aphron floating higher."],
+  ["S18",{pos:"stop",ms:.42},"Aphron at the baseline, like a full stop."],
+  ["S19",{cs:"mixed"},"LSR-Vis, lowercase is, normal i-dot."],
+  ["S20",{cs:"mixed",sw:1.6},"LSR-Vis, a touch heavier."],
+  ["S21",{ink:"graphite"},"Graphite and red, as in W452."],
+  ["S22",{ink:"teal"},"Teal and amber, from the cross-section diagram."],
+  ["S23",{ink:"black",dot:"ink"},"One color throughout."]
 ].map(([id,o,note])=>({...B,...o,id,note}));
 
 /* ---------- measurement ---------- */
@@ -153,28 +154,21 @@ function raster(f,s,ls=0){setFont(f);const w=Math.ceil(cx.measureText(s).width+l
   const d=cx.getImageData(0,0,w,h).data;return{ink:(x,y)=>{const X=Math.round(x+ox),Y=Math.round(y+oy);return X<0||Y<0||X>=w||Y>=h?0:d[(Y*w+X)*4+3]}}}
 function runs(R,y,xa,xb){const o=[];let s=null;for(let x=Math.floor(xa);x<=xb;x++){const on=R.ink(x,y)>110;if(on&&s===null)s=x;if(!on&&s!==null){o.push([s,x-1]);s=null}}if(s!==null)o.push([s,Math.floor(xb)]);return o}
 const MET={};
-function met(v){
-  const key=v.font+"|"+v.ls;if(MET[key])return MET[key];const f=FONTS[v.font];setFont(f);
-  const xH=cx.measureText("x").actualBoundingBoxAscent,cap=cx.measureText("H").actualBoundingBoxAscent;
-  setFont(f,", monospace");const a=cx.measureText("ı").width;setFont(f,", serif");const b=cx.measureText("ı").width;
-  const dotless=Math.abs(a-b)<.01,word=dotless?"LSR-Vıs":"LSR-Vis",ls=v.ls||0;
-  const W=(t)=>{setFont(f);return cx.measureText(t).width+ls*t.length};
-  const R=raster(f,word,ls),x0=W("LSR-V")-4,x1=W("LSR-Vı")+4,rr=runs(R,Math.round(-xH*.5),x0,x1);
-  const stemC=rr.length?(rr[0][0]+rr[0][1])/2:(x0+x1)/2,stemW=rr.length?rr[0][1]-rr[0][0]+1:xH*.2;
-  return MET[key]={xH,cap,dotless,word,stemC,stemW};
-}
+function met(v){const f=FONTS[v.font];setFont(f);return{xH:cx.measureText("x").actualBoundingBoxAscent,cap:cx.measureText("H").actualBoundingBoxAscent}}
 /* ---------- the wordmark ---------- */
 function wordmark(v,I,opt={}){
-  const f=FONTS[v.font],M=met(v),F=opt.rev?"#FFFFFF":I.F,A=opt.mono?F:I.A,t=Math.tan(v.slant*Math.PI/180);
-  const ff=`font-family="'${f.f}'" font-weight="${f.w}"${f.st?` font-stretch="${f.st}"`:""}${v.ls?` letter-spacing="${v.ls}"`:""}`;
-  const r=Math.max(M.stemW,M.xH*.23)*v.k,cy=-M.xH-Math.max(M.stemW*.6,M.xH*.09)*v.gap-r-v.sw/2,cxp=M.stemC-t*cy;
-  const txt=v.hy?M.word.replace("-",`<tspan fill="${A}"${v.sw?` stroke="${A}"`:""}>-</tspan>`):M.word;
+  const f=FONTS[v.font],M=met(v),F=opt.rev?"#FFFFFF":I.F,A=opt.mono?F:I.A,t=Math.tan(v.slant*Math.PI/180),cap=M.cap;
+  const word=v.cs==="mixed"?"LSR-Vis":"LSR-VIS";setFont(f);const W=cx.measureText(word).width+v.ls*(word.length-1);
+  const ff=`font-family="'${f.f}'" font-weight="${f.w}"${v.ls?` letter-spacing="${v.ls}"`:""}`;
+  const txt=v.hy?word.replace("-",`<tspan fill="${A}"${v.sw?` stroke="${A}"`:""}>-</tspan>`):word;
   const stroke=v.sw?` stroke="${F}" stroke-width="${v.sw}" stroke-linejoin="round"`:"";
   let g=`<g transform="skewX(${-v.slant})"><text x="0" y="0" ${ff} font-size="100" fill="${F}"${stroke}>${txt}</text></g>`;
-  if(!M.dotless)g+=dot(cxp,cy+r*.15,r*1.12,opt.bg||"#fff");
-  return g+APH[v.dot].s(cxp,cy,r,F,A,false);
+  const s2=cap*v.ms,r=s2/2;let cy;
+  if(v.pos==="cap")cy=-cap/2;else if(v.pos==="high")cy=-cap-r*.55;else if(v.pos==="tuck")cy=-cap+r*.35;else if(v.pos==="stop")cy=-r;else cy=-cap-r*.05;
+  const gap=v.pos==="tuck"?cap*.02:v.pos==="stop"?cap*.12:cap*.1,cxm=W+v.sw/2+gap+r+t*(-cy);
+  return g+APH[v.dot].s(cxm,cy,r,F,A,false);
 }
-function icon(v,I,opt={}){const F=opt.rev?"#FFFFFF":I.F,A=opt.mono?F:I.A;return APH[v.dot].s(50,50,46,F,A,true)}
+function icon(v,I,opt={}){const F=opt.rev?"#FFFFFF":I.F,A=opt.mono?F:I.A;return APH[v.dot==="drip"?"minimal":v.dot].s(50,50,46,F,A,true)}
 const CACHE=new Map();
 function tight(inner,label,pad=.02){const sc=document.getElementById("scratch");sc.innerHTML=`<g>${inner}</g>`;const b=sc.firstChild.getBBox(),p=Math.max(b.width,b.height)*pad;
   return{vb:`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`,w:b.width+2*p,h:b.height+2*p,inner,label}}
@@ -240,8 +234,8 @@ function mDark(v,I){
 }
 
 /* ---------- page ---------- */
-let cur=0,inkK="petrol";try{const s=JSON.parse(localStorage.getItem("lsrv-r7")||"{}");if(s.cur!=null)cur=s.cur;if(s.ink)inkK=s.ink}catch(e){}
-const save=()=>{try{localStorage.setItem("lsrv-r7",JSON.stringify({cur,ink:inkK}))}catch(e){}};
+let cur=1,inkK="petrol";try{const s=JSON.parse(localStorage.getItem("lsrv-r8")||"{}");if(s.cur!=null)cur=s.cur;if(s.ink)inkK=s.ink}catch(e){}
+const save=()=>{try{localStorage.setItem("lsrv-r8",JSON.stringify({cur,ink:inkK}))}catch(e){}};
 function cands(){
   const el=document.getElementById("cands");el.innerHTML="";
   VERS.forEach((v,i)=>{const I=INKS[v.ink],L=logo(v,I),b=document.createElement("button");b.className="cand";b.setAttribute("aria-pressed",i===cur);
