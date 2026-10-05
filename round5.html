@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LSR-Vis Round 4</title>
+<title>LSR-Vis Round 5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Google+Sans+Flex:wdth,wght@125,600&family=Google+Sans:wght@500;700&family=Lexend+Exa:wght@500&family=Krona+One&family=Archivo:wdth,wght@125,700&family=Saira:wdth,wght@125,600&family=Unbounded:wght@500&family=IBM+Plex+Mono:wght@400;600&display=swap">
@@ -67,13 +67,12 @@ textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
 </head>
 <body>
 <div class="wrap">
-  <div class="nav"><a href="round5.html">Round 5 →</a><a href="round3.html">← Round 3</a><a href="round2.html">Round 2</a><a href="wordmarks.html">One-piece wordmarks</a></div>
-  <div class="eyebrow">Round 4 · from Round 3, sections 3, 4 and 2</div>
-  <h1>LSR-Vis <span>Round 4</span></h1>
-  <p class="lede">Two directions, 60 versions each. First, the lateral under the name, redrawn so the L stays a true L at the baseline and the well carries on from its foot. Second, the aphron on the right combined with bubbles in and off the L, including a trail that rises from the L and lands at the aphron. Click any version to load it into the builder.</p>
-
+  <div class="nav"><a href="round4.html">← Round 4</a><a href="round3.html">Round 3</a><a href="round2.html">Round 2</a></div>
+  <div class="eyebrow">Round 5 · more of Round 4, direction B</div>
+  <h1>LSR-Vis <span>Round 5</span></h1>
+  <p class="lede">Ninety-six more of direction B: the well-L, aphron bubbles in and off it, and the aphron beside the name. New this round: bubbles rising out of the top of the well, a small aphron tucked into the L's corner, low and high trails to the aphron, two more aphron styles (monoline and solid stamp), and the aphron at three sizes and three heights. Click any version to load it into the builder.</p>
   <section>
-    <div class="shead"><h2>Builder</h2><p>Every option from both directions. Settings are kept in this browser; Copy SVG exports the preview on white.</p></div>
+    <div class="shead"><h2>Builder</h2><p>Settings are kept in this browser; Copy SVG exports the preview on white.</p></div>
     <div class="controls" id="controls"></div>
     <div class="preview">
       <div class="pv" id="pv"></div>
@@ -92,6 +91,7 @@ textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
   <div id="studies"></div>
 </div>
 <script>
+
 
 const N=v=>Math.round(v*100)/100;
 const dot=(x,y,r,f)=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="${f}"/>`;
@@ -114,6 +114,8 @@ const APH={
     +`<g clip-path="url(#L${u})">${dot(50,50,42,"#fff")}${ring(50,50,42,I.F,2.2)}${dot(50,50,30.5,I.T2)}${around(38.5,30,(x,y)=>dot(x,y,2.1,I.A))}${around(33,26,(x,y)=>dot(x,y,1.9,I.A),.12)}${around(19.5,16,(x,y)=>dot(x,y,1.8,I.A))}${dot(50,50,13.5,I.T1)}${ring(50,50,13.5,I.F,2)}</g><path d="M50 6 V94" stroke="${I.F}" stroke-width="1.4"/>`
 };
 
+APH.mono=I=>{const F=I.F;return wavy(46.5,1.8,8,.4,F,1.8)+ring(50,50,40.5,F,2.8,`stroke-dasharray="0 5.2" stroke-linecap="round"`)+ring(50,50,34.5,F,2.6,`stroke-dasharray="0 4.8" stroke-linecap="round"`)+ring(50,50,30,F,1.4)+ring(50,50,22,F,1.4)+ring(50,50,18.5,F,2.4,`stroke-dasharray="0 4.2" stroke-linecap="round"`)+ring(50,50,12,F,2.6)};
+APH.solid=I=>dot(50,50,47,I.F)+ring(50,50,40,"#fff",3,`stroke-dasharray="0 5.6" stroke-linecap="round"`)+ring(50,50,34,"#fff",3,`stroke-dasharray="0 5.2" stroke-linecap="round"`)+ring(50,50,26,"#fff",1.4)+ring(50,50,19,"#fff",2.6,`stroke-dasharray="0 4.4" stroke-linecap="round"`)+dot(50,50,11,I.A===I.F?"#fff":I.A);
 const FONTS=[
   {f:"Michroma",w:400,lbl:"Michroma"},
   {f:"Google Sans Flex",w:600,st:"expanded",lbl:"Google Sans Flex wide"},
@@ -143,43 +145,30 @@ function geo(f){
 }
 
 
-/* ---------- the well-L wordmark, Round 4 ---------- */
-const DEF={heel:2,foot:"letter",toe:"round",bub:"none",aph:"none",lc:"ink",slant:true,font:0,ink:"petrol"};
+
+/* ---------- direction B: well-L + aphron bubbles + aphron ---------- */
+const DEF={heel:2,bub:"rise",aph:"minimal",as:1.6,av:"mid",lc:"ink",slant:true,font:0,ink:"petrol"};
 function build(c,u,inkO){
   const f=FONTS[c.font],I=inkO||INKS[c.ink],G=geo(f),w=G.w,rest="SR-Vis",sk=c.slant?.2126:0,P=(x,y)=>[x-sk*y,y];
   const ff=`font-family="'${f.f}'" font-weight="${f.w}"${f.st?` font-stretch="${f.st}"`:""}`;
-  const Lc=c.lc==="accent"?I.A:I.F,latC=c.lc==="lat"?I.A:Lc,cx0=G.l+w/2,mode=c.foot;
-  const pipe=c.bub==="pipe"||c.bub==="both",rising=c.bub==="rise"||c.bub==="both",trail=c.bub==="trail";
-  const wp=w,sit=mode==="sit"||mode==="sit2",cont=mode==="step"||mode==="thin"||mode==="dots";
-  let extra=Math.max(0,cx0+w*c.heel+w*1.1-G.footR);if(rising)extra+=w*2.6;if(cont)extra+=w*1.5;
-  const xF=G.footR+extra,xS=G.advL+extra,Wt=xS+meas(f,rest),xEnd=Wt+w*.3;
-  const fy=sit?wp/2:-wp/2,R=Math.max(.01,Math.min(w*c.heel,xF-cx0-w*.8,(G.cap+fy)*.55,mode==="letter"?1e9:G.cap*.2));
-  const tw=w*.5,yLow=w*.8+(mode==="thin"?tw/2:wp/2);
-  const Lpath=x2=>`M${N(cx0)} ${N(-G.cap)} V${N(fy-R)} A${N(R)} ${N(R)} 0 0 0 ${N(cx0+R)} ${N(fy)} H${N(x2)}`;
-  let sk_="",dots="",yE=null,lw=wp;
-  if(mode==="letter"){sk_+=`<path d="${Lpath(xF)}" fill="none" stroke="${Lc}" stroke-width="${N(wp)}"/>`}
-  else if(mode==="sit"){sk_+=`<path d="${Lpath(xEnd)}" fill="none" stroke="${Lc}" stroke-width="${N(wp)}" stroke-linecap="round"/>`;yE=fy}
-  else if(mode==="sit2"){sk_+=`<path d="${Lpath(xF)}" fill="none" stroke="${Lc}" stroke-width="${N(wp)}"/><path d="M${N(xF-1)} ${N(tw/2)} H${N(xEnd)}" stroke="${latC}" stroke-width="${N(tw)}" stroke-linecap="round"/>`;yE=tw/2;lw=tw}
-  else{sk_+=`<path d="${Lpath(xF)}" fill="none" stroke="${Lc}" stroke-width="${N(wp)}"/>`;
-    if(mode==="dots"){const pts=[[xF+w*.55,fy+w*.55,.3],[xF+w*1.25,yLow-w*.15,.36]];for(let x=xF+w*2.3;x<xEnd;x+=w*1.55)pts.push([x,yLow,.4]);pts.forEach(([x,y,r],i)=>{const p=P(x,y);dots+=dot(p[0],p[1],w*r*(i%3===2?.8:1),latC)});yE=yLow;lw=w*.8}
-    else{const sw=mode==="thin"?tw:wp;sk_+=`<path d="M${N(xF-.5)} ${N(fy)} C${N(xF+w*.7)} ${N(fy)} ${N(xF+w*.7)} ${N(yLow)} ${N(xF+w*1.4)} ${N(yLow)} H${N(xEnd)}" fill="none" stroke="${latC}" stroke-width="${N(sw)}" stroke-linecap="round"/>`;yE=yLow;lw=sw}}
-  /* toe of the lateral */
-  let after="";
-  if(yE!==null){
-    if(c.toe==="drop"&&mode!=="dots"){const d=G.cap*.5,dy=G.cap*.38;sk_+=`<path d="M${N(xEnd-.5)} ${N(yE)} C${N(xEnd+d*.55)} ${N(yE)} ${N(xEnd+d*.45)} ${N(yE+dy)} ${N(xEnd+d)} ${N(yE+dy)}" fill="none" stroke="${latC}" stroke-width="${N(lw)}" stroke-linecap="round"/>`}
-    else if(c.toe==="aph"){const s=Math.max(w*4.4,lw*4),p=P(xEnd+s/2+w*.4,yE);after+=`<g transform="translate(${N(p[0]-s/2)} ${N(p[1]-s/2)}) scale(${N(s/100)})">${APH.minimal(I,u)}</g>`}
-    else if(c.toe==="rise"){[[0,1.7,.45],[.5,3.6,.65],[-.1,6.1,.88]].forEach(([dx,dy,r])=>{const p=P(xEnd+w*.3+dx*w,yE-dy*w);dots+=dot(p[0],p[1],w*r,I.A)})}
-  }
-  /* bubbles in the L */
-  if(pipe){const r=w*.29;[-G.cap*.76,-G.cap*.48].forEach(y=>{const p=P(cx0,y);dots+=dot(p[0],p[1],r,"#fff")});const a0=cx0+R+r,b0=xF-w*.7;for(let i=0;i<2;i++){const p=P(a0+(b0-a0)*(i+.5)/2,fy);dots+=dot(p[0],p[1],r,"#fff")}
-    if(mode==="sit")for(let x=xF+w;x<xEnd-w;x+=w*2.4){const p=P(x,fy);dots+=dot(p[0],p[1],r,"#fff")}}
-  if(rising){const x0=G.l+w*(pipe?1.4:1.05),cw=xF-x0,top=sit?0:fy-wp/2;[[.3,top-w*.85,.5],[.62,-G.cap*.47,.7],[.34,-G.cap*.84,.9]].forEach(([t,y,r])=>{const p=P(x0+cw*t,y);dots+=dot(p[0],p[1],Math.min(w*r,cw*.27),I.A)})}
-  /* aphron on the right */
-  const cap=G.cap,mk=(kind,mx,my,s)=>`<g transform="translate(${N(mx)} ${N(my)}) scale(${N(s/100)})">${APH[kind](I,u)}</g>`;let ax=null,ay=null,as=0;
-  if(["minimal","clean","cutaway"].includes(c.aph)){as=cap*1.6;ax=Wt+cap*.34+sk*cap*.55+as/2;ay=-cap/2;after+=mk(c.aph,ax-as/2,ay-as/2,as)}
-  else if(c.aph==="super"){as=cap*.9;ax=Wt+cap*.12+sk*cap+as/2;ay=-cap-as*.3+as/2;after+=mk("minimal",ax-as/2,ay-as/2,as)}
-  if(trail){const s0=P(G.l+w*1.6,-cap*1.08),e=ax!==null?[ax-as*.62,ay-as*.5]:P(Wt,-cap*1.1),q=[(s0[0]+e[0])/2,Math.min(s0[1],e[1])-cap*.75],n=8;
-    for(let i=0;i<n;i++){const t=i/n,v=1-t,x=v*v*s0[0]+2*v*t*q[0]+t*t*e[0],y=v*v*s0[1]+2*v*t*q[1]+t*t*e[1];dots+=dot(x,y,w*(.22+.42*t),I.A)}}
+  const Lc=c.lc==="accent"?I.A:I.F,bc=c.lc==="accent"?I.F:I.A,cx0=G.l+w/2,b=c.bub,cap=G.cap;
+  const pipe=["pipe","both","wellpipe"].includes(b),rising=b==="rise"||b==="both",well=b==="well"||b==="wellpipe",heelA=b==="heel",trail=b==="trail"||b==="trailLow";
+  const hs=w*2.5;
+  let extra=Math.max(0,cx0+w*c.heel+w*1.1-G.footR);if(rising)extra+=w*2.6;if(heelA)extra+=hs*.75;
+  const xF=G.footR+extra,xS=G.advL+extra,Wt=xS+meas(f,rest),fy=-w/2;
+  const R=Math.max(.01,Math.min(w*c.heel,xF-cx0-w*.8,(cap+fy)*.55));
+  let sk_=`<path d="M${N(cx0)} ${N(-cap)} V${N(fy-R)} A${N(R)} ${N(R)} 0 0 0 ${N(cx0+R)} ${N(fy)} H${N(xF)}" fill="none" stroke="${Lc}" stroke-width="${N(w)}"/>`,dots="",after="";
+  const mk=(kind,cxm,cym,s)=>`<g transform="translate(${N(cxm-s/2)} ${N(cym-s/2)}) scale(${N(s/100)})">${APH[kind](I,u)}</g>`;
+  if(pipe){const r=w*.29;[-cap*.76,-cap*.48].forEach(y=>{const p=P(cx0,y);dots+=dot(p[0],p[1],r,"#fff")});const a0=cx0+R+r,b0=xF-w*.7;for(let i=0;i<2;i++){const p=P(a0+(b0-a0)*(i+.5)/2,fy);dots+=dot(p[0],p[1],r,"#fff")}}
+  if(rising){const x0=G.l+w*1.05,cw=xF-x0;[[.3,-w*1.85,.5],[.62,-cap*.47,.7],[.34,-cap*.84,.9]].forEach(([t,y,r])=>{const p=P(x0+cw*t,y);dots+=dot(p[0],p[1],Math.min(w*r,cw*.27),bc)})}
+  if(well){[[.25,.95,.3],[-.35,2.15,.45],[.45,3.75,.62],[-.15,5.75,.8]].forEach(([dx,dy,r])=>{const p=P(cx0+dx*w,-cap-dy*w);dots+=dot(p[0],p[1],w*r,bc)})}
+  if(heelA){const p=P(G.l+w+w*.35+hs/2,fy-w/2-w*.3-hs/2);after+=mk("minimal",p[0],p[1],hs)}
+  /* aphron beside the name */
+  let ax=null,ay=null,as=0;
+  if(c.aph==="super"){as=cap*.9;ax=Wt+cap*.12+sk*cap+as/2;ay=-cap-as*.3+as/2;after+=mk("minimal",ax,ay,as)}
+  else if(c.aph!=="none"){as=cap*c.as;ay=c.av==="top"?-cap+as/2-cap*.04:c.av==="base"?-as/2+cap*.02:-cap/2;ax=Wt+cap*.34+sk*(-ay)+as/2;after+=mk(c.aph,ax,ay,as)}
+  if(trail){const s0=P(G.l+w*1.6,-cap*1.2),e=ax!==null?[ax-as*.62,ay-as*.5]:P(Wt,-cap*1.1),lift=b==="trailLow"?cap*.42:cap*.8,q=[(s0[0]+e[0])/2,Math.min(s0[1],e[1])-lift],n=b==="trailLow"?10:8;
+    for(let i=0;i<n;i++){const t=i/n,v=1-t,x=v*v*s0[0]+2*v*t*q[0]+t*t*e[0],y0=v*v*s0[1]+2*v*t*q[1]+t*t*e[1],y=x<Wt+cap*.3?Math.min(y0,-cap*1.16-w*(.2+.42*t)):y0;dots+=dot(x,y,w*(.2+.42*t),bc)}}
   sk_+=`<text x="${N(xS)}" y="0" ${ff} font-size="100" fill="${I.F}">${rest}</text>`;
   return `<g transform="skewX(${c.slant?-12:0})">${sk_}</g>`+dots+after;
 }
@@ -187,16 +176,15 @@ const wrap=(inner,label)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 
 function fit(svg,p=.04){try{const b=svg.querySelector("g.c").getBBox();if(!b.width)return;const q=Math.max(b.width,b.height)*p;svg.setAttribute("viewBox",`${N(b.x-q)} ${N(b.y-q)} ${N(b.width+2*q)} ${N(b.height+2*q)}`)}catch(e){}}
 let uN=0;const uid=()=>"u"+(uN++);
 
-/* ---------- builder ---------- */
-let ST={...DEF};try{Object.assign(ST,JSON.parse(localStorage.getItem("lsrv-r4")||"{}"))}catch(e){}
-const save=()=>{try{localStorage.setItem("lsrv-r4",JSON.stringify(ST))}catch(e){}};
+let ST={...DEF};try{Object.assign(ST,JSON.parse(localStorage.getItem("lsrv-r5")||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem("lsrv-r5",JSON.stringify(ST))}catch(e){}};
 const OPTS={
-  foot:["Foot",[["letter","Letter"],["step","Steps down"],["sit","Name sits on it"],["sit2","Thick then thin"],["thin","Thin tail"],["dots","Bubble trail"]]],
-  toe:["Toe",[["round","Round"],["drop","Shear drop"],["aph","Aphron"],["rise","Rising"]]],
+  bub:["Bubbles",[["none","None"],["pipe","In the pipe"],["rise","Rising off the foot"],["both","Pipe + rising"],["well","Out of the wellhead"],["wellpipe","Wellhead + pipe"],["heel","Aphron in the corner"],["trail","High trail"],["trailLow","Low trail"]]],
+  aph:["Aphron",[["none","None"],["minimal","Minimal"],["clean","Clean"],["cutaway","Cutaway"],["mono","Monoline"],["solid","Solid"],["super","Superscript"]]],
+  as:["Size",[[1.3,"Small"],[1.6,"Medium"],[2,"Large"]]],
+  av:["Height",[["top","Top"],["mid","Centered"],["base","On baseline"]]],
   heel:["Bend",[[.6,"Tight"],[1.2,"Medium"],[2,"Round"],[3,"Sweeping"]]],
-  bub:["L bubbles",[["none","None"],["pipe","In the pipe"],["rise","Rising"],["both","Both"],["trail","Trail to aphron"]]],
-  aph:["Aphron",[["none","None"],["minimal","Minimal"],["clean","Clean"],["cutaway","Cutaway"],["super","Superscript"]]],
-  lc:["Color",[["ink","All ink"],["accent","Accent L"],["lat","Accent lateral"]]],
+  lc:["Color",[["ink","Ink L, accent bubbles"],["accent","Accent L, ink bubbles"]]],
   slant:["Slant",[[true,"Slanted"],[false,"Upright"]]]
 };
 function controls(){
@@ -207,10 +195,10 @@ function controls(){
   el.innerHTML=h;
 }
 function sync(){document.querySelectorAll("#controls button[data-k]").forEach(b=>b.setAttribute("aria-pressed",String(ST[b.dataset.k])===b.dataset.v));document.getElementById("font").value=ST.font;document.getElementById("ink").value=ST.ink}
-document.getElementById("controls").addEventListener("click",e=>{const b=e.target.closest("button[data-k]");if(!b)return;const k=b.dataset.k,v=b.dataset.v;ST[k]=k==="heel"?+v:k==="slant"?v==="true":v;save();sync();preview()});
+document.getElementById("controls").addEventListener("click",e=>{const b=e.target.closest("button[data-k]");if(!b)return;const k=b.dataset.k,v=b.dataset.v;ST[k]=(k==="heel"||k==="as")?+v:k==="slant"?v==="true":v;save();sync();preview()});
 document.getElementById("controls").addEventListener("change",e=>{if(e.target.id==="font")ST.font=+e.target.value;if(e.target.id==="ink")ST.ink=e.target.value;save();preview()});
 const lab=(k,v)=>OPTS[k][1].find(x=>String(x[0])===String(v))[1];
-function describe(c){const p=[FONTS[c.font].lbl,lab("foot",c.foot)];if(c.foot!=="letter")p.push(lab("toe",c.toe)+" toe");p.push(lab("heel",c.heel)+" bend");if(c.bub!=="none")p.push(lab("bub",c.bub));if(c.aph!=="none")p.push(lab("aph",c.aph)+" aphron");return p.join(" · ")}
+function describe(c){const p=[FONTS[c.font].lbl,lab("bub",c.bub)];if(c.aph==="super")p.push("superscript aphron");else if(c.aph!=="none")p.push(`${lab("aph",c.aph).toLowerCase()} aphron, ${lab("as",c.as).toLowerCase()}, ${lab("av",c.av).toLowerCase()}`);p.push(lab("heel",c.heel).toLowerCase()+" bend");return p.join(" · ")}
 function preview(){
   document.getElementById("pvname").textContent=describe(ST);const I=INKS[ST.ink];
   document.getElementById("pv").innerHTML=wrap(build(ST,uid()),"LSR-Vis preview");
@@ -221,33 +209,23 @@ function preview(){
 }
 document.getElementById("copy").onclick=()=>{
   const s=document.querySelector("#pv svg").cloneNode(true);s.insertAdjacentHTML("afterbegin",`<rect x="-10000" y="-10000" width="20000" height="20000" fill="#fff"/>`);
-  const f=FONTS[ST.font],src=`<!-- LSR-Vis round 4 · ${describe(ST)} · font: ${f.f} (Google Fonts) -->\n`+s.outerHTML,b=document.getElementById("copy");
+  const f=FONTS[ST.font],src=`<!-- LSR-Vis round 5 · ${describe(ST)} · font: ${f.f} (Google Fonts) -->\n`+s.outerHTML,b=document.getElementById("copy");
   const fallback=()=>{const ta=document.getElementById("fb");ta.value=src;ta.hidden=false;ta.select();b.textContent="Select and copy below"};
   try{navigator.clipboard.writeText(src).then(()=>{b.textContent="Copied"},fallback)}catch(e){fallback()}
 };
 
-/* ---------- the two directions, 60 versions each ---------- */
 const INKK=["petrol","graphite","diagram"];
-function dirA(){ // lateral under the name, L kept as a true L
-  const modes=["step","sit","sit2","thin","dots"],toes=["round","drop","aph","rise"],out=[],seen=new Set();
-  modes.forEach((m,mi)=>toes.forEach((t,ti)=>{for(let j=0;j<3;j++){
-    const c={...DEF,foot:m,toe:(m==="dots"&&t==="drop")?["round","aph","rise"][j]:t,heel:[2,1.2,3][(j+mi)%3],font:j===0?0:[1,2,3,4,5,6,7][(mi*3+ti*2+j)%7],
-      slant:!(j===2&&(mi+ti)%2===0),lc:["ink","lat","accent"][(mi+ti+j)%3],ink:INKK[(mi+2*ti+j)%3],bub:"none"};
+function combos(){
+  const bubs=["pipe","rise","both","well","wellpipe","heel","trail","trailLow"],aphs=["minimal","clean","cutaway","mono","solid","super"],out=[],seen=new Set();
+  bubs.forEach((b,bi)=>aphs.forEach((a,ai)=>{for(let j=0;j<2;j++){
+    const c={...DEF,bub:b,aph:a,heel:[2,1.2,3,.6][(bi+ai+j)%4],font:j===0&&(bi+ai)%2===0?0:[0,1,2,3,4,5,6,7][(bi*3+ai*2+j*5)%8],
+      slant:(bi+ai+j)%5!==4,lc:["ink","accent"][(bi*2+ai+j)%2],ink:INKK[(bi+ai*2+j)%3],as:[1.6,1.3,2][(bi+ai+j*2)%3],av:["mid","top","base"][(ai+bi*2+j)%3]};
     const key=JSON.stringify(c);if(!seen.has(key)){seen.add(key);out.push(c)}}}));
   return out;
 }
-function dirB(){ // aphron on the right + bubbles in and off the L
-  const bubs=["pipe","rise","both","trail"],aphs=["minimal","clean","cutaway","super"],out=[],seen=new Set();
-  bubs.forEach((b,bi)=>aphs.forEach((a,ai)=>{for(let j=0;j<4;j++){
-    if(b==="trail"&&j===3)continue;
-    const c={...DEF,foot:"letter",bub:b,aph:a,heel:[2,1.2,3,.6][(j+bi)%4],font:j<2?0:[1,2,3,4,5,6,7][(bi*4+ai+j)%7],slant:!(j===3),
-      lc:["ink","accent"][(bi+ai+j)%2],ink:INKK[(bi+ai*2+j)%3]};
-    const key=JSON.stringify(c);if(!seen.has(key)){seen.add(key);out.push(c)}}}));
-  return out;
-}
-function section(title,p,items,start){
+function section(title,p,items){
   const sec=document.createElement("section");sec.innerHTML=`<div class="shead"><h2>${title}</h2><p>${p}</p></div><div class="grid"></div>`;const grid=sec.querySelector(".grid");
-  items.forEach((c,i)=>{const t=document.createElement("div");t.className="tile";t.tabIndex=0;t.setAttribute("role","button");const code=start+String(i+1).padStart(2,"0"),name=describe(c).split(" · ").slice(1).join(" · ");
+  items.forEach((c,i)=>{const t=document.createElement("div");t.className="tile";t.tabIndex=0;t.setAttribute("role","button");const code="C"+String(i+1).padStart(2,"0"),name=describe(c).split(" · ").slice(1).join(" · ");
     t.setAttribute("aria-label",`Load ${code} into the builder`);t.innerHTML=`<div class="art">${wrap(build(c,uid()),code)}</div><div class="cap"><span><b>${code}</b> ${name}</span><span>${FONTS[c.font].lbl}</span></div>`;
     const load=()=>{ST={...c};save();sync();preview();window.scrollTo({top:0,behavior:"smooth"})};t.addEventListener("click",load);t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();load()}});grid.appendChild(t)});
   document.getElementById("studies").appendChild(sec);sec.querySelectorAll("svg").forEach(s=>fit(s));
@@ -256,9 +234,8 @@ controls();
 (async()=>{
   try{await Promise.all(FONTS.map(f=>document.fonts.load(cssFont(f),"LSR-Vis")))}catch(e){}
   await document.fonts.ready;document.getElementById("loading").hidden=true;preview();
-  const A=dirA(),B=dirB();
-  section(`A · The lateral, with a true L <span style="color:var(--muted);font-weight:500">(${A.length})</span>`,"The L keeps its letter shape at the baseline. The well carries on from the foot: stepping down under the name, holding the name up, thinning out, or continuing as bubbles. Each ends in a round toe, a shear-curve drop, an aphron, or rising bubbles.",A,"A");
-  section(`B · Aphron + bubbles <span style="color:var(--muted);font-weight:500">(${B.length})</span>`,"Round 3's sections 4 and 2 together: the aphron on the right, with aphrons in the pipe, rising off the foot, both, or rising from the L in a trail that lands at the aphron.",B,"B");
+  const C=combos();
+  section(`Direction B, continued <span style="color:var(--muted);font-weight:500">(${C.length})</span>`,"Eight bubble treatments across six aphron styles, twice each, with bend, size, height, color, slant and typeface varied so no two match.",C);
 })();
 </script>
 </body>
