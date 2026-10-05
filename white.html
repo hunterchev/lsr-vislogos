@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LSR-Vis White Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;800&family=Archivo+Narrow:wght@700&family=Big+Shoulders+Display:wght@800&family=Unbounded:wght@700&family=Syne:wght@800&family=IBM+Plex+Mono:wght@400;600&family=Fraunces:wght@700&family=Chakra+Petch:wght@700&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Saira+Stencil+One&family=Michroma&family=DM+Serif+Display&family=Oswald:wght@600&family=Rubik+Mono+One&family=Barlow+Condensed:ital,wght@1,700&family=Manrope:wght@800&family=Sora:wght@700&family=Red+Hat+Display:wght@900&family=Lexend:wght@600&family=Bebas+Neue&family=Zilla+Slab:wght@700&family=Josefin+Sans:wght@700&family=Kanit:ital,wght@1,700&family=Gloock&family=Instrument+Serif:ital@0;1&family=Azeret+Mono:wght@700&family=Familjen+Grotesk:wght@700&family=Exo+2:wght@800&family=Spectral:wght@700&family=Sometype+Mono:wght@700&display=swap">
+<style>
+/* Layout: a proof sheet. Quiet grey ground so 500 white tiles read as cards; header, filter bar, dense grid. */
+:root{
+  --bg:#E9E9E5; --surface:#FFFFFF; --fg:#18191B; --muted:#62645F; --line:#D2D2CC; --accent:#E4572E;
+  --display:"Bricolage Grotesque","Archivo",system-ui,sans-serif;
+  --body:"Archivo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#1A1B1A; --fg:#EDEDE8; --muted:#A1A39C; --line:#33352F; color-scheme:dark}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0}
+a{color:inherit}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:28px 64px}
+.nav{font-family:var(--mono);font-size:12px;letter-spacing:.04em;margin-bottom:18px}
+.nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--fg)}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px 32px;border-bottom:1px solid var(--line);padding-bottom:20px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,5vw,56px);line-height:.95;margin:0;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+.lede{max-width:60ch;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;display:flex;gap:16px;flex-wrap:wrap}
+.meta b{color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-block:16px;position:sticky;top:0;background:var(--bg);z-index:5}
+.lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:2px}
+.chip,select{font:600 13px var(--body);border:1px solid var(--line);background:var(--surface);color:#18191B;padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;align-items:start}
+.tile{position:relative;display:flex;flex-direction:column;border-radius:4px;overflow:hidden;cursor:pointer;background:#fff;border:1px solid var(--line)}
+.art{position:relative;aspect-ratio:4/3;background:#fff}
+.art svg{position:absolute;left:14%;top:14%;width:72%;height:72%;overflow:visible}
+.cap{display:flex;justify-content:space-between;gap:8px;padding:8px 11px;font-family:var(--mono);font-size:11px;color:#6A6C66;border-top:1px solid #ECECE8;background:#fff}
+.cap b{color:#18191B;font-weight:600}
+.cap span:last-child{white-space:nowrap}
+.cap span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;border:1px solid #E2E2DC;background:#fff;color:#9A9C95;font-size:14px;line-height:26px;cursor:pointer;opacity:0;transition:opacity .15s}
+.tile:hover .star,.star.on{opacity:1}
+.star.on{background:#F2C14E;border-color:#F2C14E;color:#18191B}
+@media (hover:none){.star{opacity:1}}
+.empty{padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px}
+[hidden]{display:none!important}
+dialog{border:0;padding:0;border-radius:8px;max-width:min(1000px,calc(100vw - 32px));width:100%;background:#fff;color:#18191B}
+dialog::backdrop{background:rgba(10,10,10,.55)}
+.dl{display:grid;grid-template-columns:1.5fr 1fr}
+@media (max-width:720px){.dl{grid-template-columns:1fr}}
+.big{display:grid;place-items:center;padding:12%;min-height:320px;background:#fff;border-right:1px solid #ECECE8}
+.big svg{width:100%;max-height:340px;overflow:visible}
+.side{padding:24px;display:flex;flex-direction:column;gap:14px;min-width:0;background:#FAFAF8}
+.side h2{font-family:var(--display);font-size:26px;margin:0;line-height:1.1}
+.side p{margin:0;color:#5D5F5A;line-height:1.5}
+.side .meta{color:#6A6C66}.side .meta b{color:#18191B}
+dl.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-family:var(--mono);font-size:12px}
+dl.spec dt{color:#6A6C66;text-transform:uppercase;letter-spacing:.06em}
+dl.spec dd{margin:0}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.minis figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.minis div{aspect-ratio:1;display:grid;place-items:center;padding:16%;border-radius:4px;border:1px solid #E2E2DC;background:#fff}
+.minis div.sm svg{width:44%;height:44%}
+.minis svg{width:100%;height:100%}
+.minis figcaption{font-family:var(--mono);font-size:10px;color:#6A6C66;text-align:center}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn{font:600 13px var(--body);padding:9px 14px;border-radius:6px;border:1px solid #D8D8D2;background:#fff;color:#18191B;cursor:pointer}
+.btn.pri{background:#18191B;color:#fff;border-color:#18191B}
+textarea.fallback{width:100%;height:90px;font:11px var(--mono)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:letter;margin:0.4in}
+@media print{
+  :root{--bg:#fff;--fg:#18191B;--muted:#555;--line:#ccc;color-scheme:light}
+  html,body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .nav,.bar,.star,dialog,#empty{display:none!important}
+  header{padding-bottom:8px} h1{font-size:28px} .lede{font-size:10.5px;margin-top:4px} .meta{font-size:9px}
+  .grid{grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .tile{break-inside:avoid;border-color:#ddd}
+  .cap{font-size:8px;padding:4px 7px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><a href="index.html">← First 100 (color grounds)</a></div>
+  <header>
+    <div>
+      <h1>LSR-Vis <span>White series</span></h1>
+      <p class="lede">Five hundred more directions for the LSR-Vis aphron fluid system, every one on white. Fifty new concepts drawn from aphron structure, low-shear rheology, the reservoir, the wellbore and the mud lab, each worked ten ways. Click a tile for one-color and small-size checks and the SVG.</p>
+    </div>
+    <div class="meta"><span><b>500</b> logos</span><span><b>50</b> concepts</span><span><b>10</b> lockups</span><span><b>16</b> inks</span><span><b>30</b> typefaces</span></div>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Filter logos">
+    <span class="lbl">Family</span>
+    <span id="fams" style="display:contents"></span>
+    <label class="lbl" for="lay" style="margin-left:8px">Lockup</label>
+    <select id="lay"><option value="all">All lockups</option></select>
+    <span class="spacer"></span>
+    <span class="count" id="count"></span>
+    <button class="chip" id="favs" aria-pressed="false">★ Shortlist <span id="favn">0</span></button>
+    <button class="chip" id="print">Print</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="empty" hidden>Nothing here yet. Hover a tile and tap the star to shortlist it.</p>
+</div>
+
+<dialog id="dlg">
+  <div class="dl">
+    <div class="big" id="big"></div>
+    <div class="side">
+      <div>
+        <div class="meta" id="dnum"></div>
+        <h2 id="dname"></h2>
+      </div>
+      <p id="ddesc"></p>
+      <dl class="spec" id="dspec"></dl>
+      <div class="minis" id="minis"></div>
+      <div class="acts">
+        <button class="btn pri" id="copy">Copy SVG</button>
+        <button class="btn" id="dstar">☆ Shortlist</button>
+        <button class="btn" id="prev" aria-label="Previous logo">←</button>
+        <button class="btn" id="next" aria-label="Next logo">→</button>
+        <button class="btn" id="close">Close</button>
+      </div>
+      <textarea class="fallback" id="fb" hidden readonly aria-label="SVG source"></textarea>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ---------- helpers ---------- */
+const N=v=>Math.round(v*10)/10;
+const dot=(x,y,r,f)=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="${f}"/>`;
+const ring=(x,y,r,s,w)=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r-w/2)}" fill="none" stroke="${s}" stroke-width="${N(w)}"/>`;
+const rng=seed=>{let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
+function pack(r,cx,cy,R,n,rmin,rmax,gap){
+  const out=[];
+  for(let i=0;i<n;i++){
+    const target=rmax-(rmax-rmin)*Math.pow(i/Math.max(1,n-1),.8);
+    for(let t=0;t<600;t++){
+      const rr=target*(.85+.3*r())*(t>300?.75:1), ang=r()*Math.PI*2;
+      const d=i===0?r()*R*.25:r()*(R-rr);
+      const x=cx+Math.cos(ang)*d, y=cy+Math.sin(ang)*d;
+      if(d+rr>R) continue;
+      if(out.every(o=>Math.hypot(o.x-x,o.y-y)>o.r+rr+gap)){out.push({x,y,r:rr});break}
+    }
+  }
+  return out;
+}
+const hex=(cx,cy,r,rot=0)=>[0,1,2,3,4,5].map(i=>{const a=(-90+60*i+rot)*Math.PI/180;return `${N(cx+r*Math.cos(a))},${N(cy+r*Math.sin(a))}`}).join(" ");
+function zig(x0,y0,ang,len,m,amp){
+  const dx=Math.cos(ang),dy=Math.sin(ang),nx=-dy,ny=dx;let p=`M${N(x0)} ${N(y0)}`;
+  for(let i=1;i<=m;i++){const t=len*i/m,s=i===m?0:(i%2?amp:-amp);p+=` L${N(x0+dx*t+nx*s)} ${N(y0+dy*t+ny*s)}`}
+  return p;
+}
+const poly=pts=>pts.map((p,i)=>(i?"L":"M")+N(p[0])+" "+N(p[1])).join(" ");
+
+/* ---------- inks (all printed on white) ---------- */
+const INKS=[
+  {n:"Ink & ember",F:"#111111",A:"#E4572E"},
+  {n:"Navy & teal",F:"#0E2A47",A:"#0F8B8D"},
+  {n:"Graphite & signal red",F:"#2B2D31",A:"#D62828"},
+  {n:"Forest & olive",F:"#1F3D2B",A:"#7A9A01"},
+  {n:"Cobalt",F:"#1D3FBB",A:"#5B7CFA"},
+  {n:"Black & grey",F:"#111111",A:"#8A8A8A"},
+  {n:"Petrol & amber",F:"#0B3C49",A:"#D98E04"},
+  {n:"Plum & coral",F:"#4A1942",A:"#F25F5C"},
+  {n:"Charcoal & cyan",F:"#222831",A:"#0096C7"},
+  {n:"Rust & black",F:"#9C3D10",A:"#1A1A1A",aB:"#F6C9A8"},
+  {n:"Indigo & magenta",F:"#2E1A6E",A:"#D81E5B"},
+  {n:"Umber & orange",F:"#4E342E",A:"#F57C00"},
+  {n:"Deep teal",F:"#00585E",A:"#2AB3A6"},
+  {n:"Slate & safety orange",F:"#37474F",A:"#FF6D00"},
+  {n:"Oxblood & gold",F:"#5C0F1B",A:"#C8961E"},
+  {n:"Midnight & mint",F:"#0B2545",A:"#13B494"}
+];
+const W="#FFFFFF";
+
+/* ---------- typefaces ---------- */
+const FONTS=[
+  {f:"Archivo",w:800},{f:"Archivo Narrow",w:700},{f:"Big Shoulders Display",w:800},{f:"Unbounded",w:700},
+  {f:"Syne",w:800},{f:"IBM Plex Mono",w:600},{f:"Fraunces",w:700},{f:"Chakra Petch",w:700},
+  {f:"Bricolage Grotesque",w:800},{f:"Saira Stencil One",w:400},{f:"Michroma",w:400},{f:"DM Serif Display",w:400},
+  {f:"Oswald",w:600},{f:"Rubik Mono One",w:400},{f:"Barlow Condensed",w:700,i:1},{f:"Manrope",w:800},
+  {f:"Sora",w:700},{f:"Red Hat Display",w:900},{f:"Lexend",w:600},{f:"Bebas Neue",w:400},
+  {f:"Zilla Slab",w:700},{f:"Josefin Sans",w:700},{f:"Kanit",w:700,i:1},{f:"Gloock",w:400},
+  {f:"Instrument Serif",w:400},{f:"Azeret Mono",w:700},{f:"Familjen Grotesk",w:700},{f:"Exo 2",w:800},
+  {f:"Spectral",w:700},{f:"Sometype Mono",w:700}
+];
+
+/* ---------- 50 marks. Each draws in a 100×100 box: F ink, A accent, B ground, k = variation 0–9 ---------- */
+const MARKS=[
+ {n:"Aphron cluster",fam:"Aphron",d:"A loose cluster of aphrons at many sizes, some solid, some shown as shells. Every variation packs a different cluster.",
+  s:(F,A,B,k)=>pack(rng(11+k*97),50,50,48,7+k%3,4,24,3).map((q,i)=>{const c=i%2?A:F;return(i%3===1&&q.r>7)?ring(q.x,q.y,q.r,c,Math.max(2.5,q.r*.3)):dot(q.x,q.y,q.r,c)}).join("")},
+ {n:"Aphron anatomy",fam:"Aphron",d:"One aphron in section: gas core, surfactant film, thick viscous shell, outer surfactant layer.",
+  s:(F,A,B,k)=>{const o=k%3,sh=k%2?A:F,ed=k%2?F:A,core=16+(k%4)*2.5;
+   let g=o===0?`<circle cx="50" cy="50" r="46" fill="none" stroke="${F}" stroke-width="4" stroke-dasharray="3 5"/>`:o===1?`<circle cx="50" cy="50" r="46" fill="none" stroke="${F}" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 8"/>`:`<circle cx="50" cy="50" r="47" fill="none" stroke="${F}" stroke-width="2"/>`;
+   return g+dot(50,50,38,sh)+`<circle cx="50" cy="50" r="${core}" fill="${B}" stroke="${ed}" stroke-width="3.5"/>`+dot(50-core*.38,50-core*.38,core*.24,sh)}},
+ {n:"Shear curve",fam:"Rheology",d:"Viscosity against shear rate: the high plateau at low shear that gives LSR-Vis its name, then shear thinning.",
+  s:(F,A,B,k)=>{const pts=[[18,22],[30,22.5],[42,28],[52,44],[62,60],[76,71],[92,77]];
+   let g=`<path d="M8 4 V92 H96" fill="none" stroke="${F}" stroke-width="${k%2?5:7}" stroke-linejoin="round" stroke-linecap="round"/>`;
+   if(k%3===0)g+=[30,52,74].map(x=>`<path d="M${x} 92 V99" stroke="${F}" stroke-width="3"/>`).join("");
+   if(k%2)g+=`<path d="M18 22 H36 C54 22 56 70 92 78" fill="none" stroke="${A}" stroke-width="3" stroke-dasharray="2 5" stroke-linecap="round"/>`+pts.map((p,i)=>dot(p[0],p[1],i===0?6:4.5,i===0?A:F)).join("");
+   else g+=`<path d="M18 22 H36 C54 22 56 70 92 78" fill="none" stroke="${A}" stroke-width="8" stroke-linecap="round"/>`+dot(26,22,5,F);
+   return g}},
+ {n:"Pore bridge",fam:"Reservoir",d:"Aphrons lodged in the pore throats between sand grains, bridging them shut.",
+  s:(F,A,B,k)=>{const s=1+(k%3-1)*.12;
+   if(k%2===0)return [[18,18],[82,18],[18,82],[82,82]].map(p=>dot(p[0],p[1],20,F)).join("")+dot(50,50,13*s,A)+dot(50,12,6.5*s,A)+dot(50,88,6.5*s,A)+dot(12,50,6*s,A)+dot(88,50,6*s,A);
+   return dot(50,16,22,F)+dot(16,76,22,F)+dot(84,76,22,F)+dot(50,56,11*s,A)+dot(50,82,6*s,A)+dot(31,43,6*s,A)+dot(69,43,6*s,A)}},
+ {n:"Fracture seal",fam:"Reservoir",d:"A string of aphrons packed into a natural fracture. Each variation cracks the rock differently.",
+  s:(F,A,B,k)=>{const r=rng(500+k*31),ys=[0,20,40,60,80,100],xs=ys.map((y,i)=>50+(i%2?1:-1)*(5+r()*9)),w=6+k%3;
+   const L=xs.map((x,i)=>`${N(x-w)},${ys[i]}`).join(" "),R=xs.map((x,i)=>`${N(x+w)},${ys[i]}`).reverse().join(" ");
+   let body=`<polygon points="0,0 ${L} 0,100" fill="${F}"/><polygon points="100,0 100,100 ${R}" fill="${F}"/>`;
+   for(let i=0;i<5;i++)body+=dot((xs[i]+xs[i+1])/2,ys[i]+10,w*(i%2?.8:.65),A);
+   if(k%2)return `<defs><clipPath id="c${"UID"}"><circle cx="50" cy="50" r="48"/></clipPath></defs><g clip-path="url(#c${"UID"})">${body}</g>`;
+   return body}},
+ {n:"Bubble drop",fam:"Aphron",d:"A drop of fluid carrying its own micro-bubbles.",
+  s:(F,A,B,k)=>{const d="M50 2 C66 30 84 46 84 64 A34 34 0 0 1 16 64 C16 46 34 30 50 2 Z",cs=pack(rng(600+k*13),50,66,24,2+k%3,3,10,3);
+   if(k%2)return `<path d="${d}" fill="none" stroke="${F}" stroke-width="6" stroke-linejoin="round"/>`+cs.map((q,i)=>dot(q.x,q.y,q.r,i%2?F:A)).join("");
+   return `<path d="${d}" fill="${F}"/>`+cs.map((q,i)=>dot(q.x,q.y,q.r,i===0?A:B)).join("")}},
+ {n:"Foam cell",fam:"Aphron",d:"A hexagonal foam cell with the gas phase held inside.",
+  s:(F,A,B,k)=>{const rot=k%2?30:0;let g=`<polygon points="${hex(50,50,46,rot)}" fill="none" stroke="${F}" stroke-width="${k%4<2?9:5}" stroke-linejoin="round"/>`,t=k%3;
+   if(t===0)g+=dot(50,50,17,A)+dot(56,44,5,B);else if(t===1)g+=ring(50,50,20,A,6)+dot(50,50,6,F);else g+=dot(42,44,9,A)+dot(60,54,7,A)+dot(46,62,4,F);return g}},
+ {n:"Low-pressure gauge",fam:"Reservoir",d:"A gauge reading near the bottom of the dial: the depleted wells aphron fluids are made for.",
+  s:(F,A,B,k)=>{const sw=k%2?7:10,cy=54.6,th=(168+k*3)*Math.PI/180;
+   let g=`<path d="M14 72 A40 40 0 1 1 86 72" fill="none" stroke="${F}" stroke-width="${sw}" stroke-linecap="round"/>`;
+   if(k%3===0)g+=`<path d="M14 72 A40 40 0 0 1 10.6 47.7" fill="none" stroke="${A}" stroke-width="${sw}" stroke-linecap="round"/>`;
+   const n=k%2?7:5;for(let i=0;i<n;i++){const a=(200+i*140/(n-1))*Math.PI/180;g+=`<path d="M${N(50+24*Math.cos(a))} ${N(cy+24*Math.sin(a))} L${N(50+30*Math.cos(a))} ${N(cy+30*Math.sin(a))}" stroke="${F}" stroke-width="3" stroke-linecap="round"/>`}
+   return g+`<path d="M50 ${cy} L${N(50+26*Math.cos(th))} ${N(cy+26*Math.sin(th))}" stroke="${A}" stroke-width="6" stroke-linecap="round"/>`+dot(50,cy,8,k%3===0?F:A)}},
+ {n:"Aphron lateral",fam:"Wellbore",d:"A horizontal well with aphrons carried along the lateral during a cleanout.",
+  s:(F,A,B,k)=>{const R=[22,30,38][k%3],yb=80,d=`M20 4 V${yb-R} Q20 ${yb} ${20+R} ${yb} H96`,r=rng(900+k);
+   let g=k%2?`<path d="${d}" fill="none" stroke="${F}" stroke-width="18" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${B}" stroke-width="9" stroke-linecap="round"/>`:`<path d="${d}" fill="none" stroke="${F}" stroke-width="16" stroke-linecap="round"/>`;
+   const ps=[[20,14],[20,14+(yb-R-14)/2],[20,yb-R]].concat([.15,.55,.9].map(t=>[20+R+(72-R)*t,yb]));
+   return g+ps.map(p=>dot(p[0],p[1],k%2?3:3+r()*1.6,A)).join("")}},
+ {n:"Circulation",fam:"Wellbore",d:"Fluid pumped down the string and back up the annulus, aphrons rising with the returns.",
+  s:(F,A,B,k)=>{const top=k%2?18:4;let g=`<path d="M30 4 V76 Q30 94 48 94 Q66 94 66 76 V${top}" fill="none" stroke="${F}" stroke-width="9" stroke-linecap="round"/><polygon points="20,40 40,40 30,56" fill="${A}"/>`;
+   if(k%2)g+=`<polygon points="55,20 77,20 66,4" fill="${A}"/>`;
+   const n=2+k%3;for(let i=0;i<n;i++){const t=i/(n-1);g+=dot(88,70-t*56,4+t*6,A)}return g}},
+ {n:"Rising column",fam:"Aphron",d:"Aphrons rising through a fluid column, growing as the pressure drops.",
+  s:(F,A,B,k)=>{const n=3+k%3;let g=k%2?`<path d="M28 3 V75 A22 22 0 0 0 72 75 V3" fill="none" stroke="${F}" stroke-width="6" stroke-linecap="round"/>`:`<rect x="28" y="3" width="44" height="94" rx="22" fill="none" stroke="${F}" stroke-width="6"/>`;
+   let y=null,prev=0;for(let i=0;i<n;i++){const r=3+i*(8/(n-1));y=y===null?88-r:y-(prev+r+3);prev=r;g+=dot(50+(i%2?-3:3),y,r,i===n-1||i%2?A:F)}return g}},
+ {n:"Foam pack",fam:"Aphron",d:"Tightly packed bubbles of mixed sizes, the texture of an aphron fluid under the lens.",
+  s:(F,A,B,k)=>pack(rng(1200+k*17),50,50,48,5+k%3,6,28,2).map((q,i)=>i===2?ring(q.x,q.y,q.r,F,4):dot(q.x,q.y,q.r,i%2?A:F)).join("")},
+ {n:"Isobars",fam:"Reservoir",d:"Pressure contours spreading from the wellbore.",
+  s:(F,A,B,k)=>{const n=3+k%3,acc=k%n;let g="";
+   if(k%2){for(let i=0;i<n;i++){const r=46-i*(34/(n-1));g+=`<circle cx="50" cy="${N(50+i*3)}" r="${N(r)}" fill="none" stroke="${i===acc?A:F}" stroke-width="${n>4?4:5}"/>`}return g+dot(50,50+(n-1)*3,5,A)}
+   for(let i=0;i<n;i++){const r=44-i*(32/(n-1));g+=`<path d="M${N(50-r)} 84 A${N(r)} ${N(r)} 0 0 1 ${N(50+r)} 84" fill="none" stroke="${i===acc?A:F}" stroke-width="${n>4?5:7}"/>`}
+   return g+`<rect x="2" y="88" width="96" height="7" fill="${F}"/>`}},
+ {n:"Slow drip",fam:"Rheology",d:"A drop that hangs instead of falling: very high viscosity at rest.",
+  s:(F,A,B,k)=>{const L=[0,8,16,24][k%4];
+   const drip=(cx,w,l)=>`<path d="M${cx-w} 18 C${cx-w} ${38+l*.4} ${cx-w*.5} ${44+l*.6} ${cx-w*.5} ${60+l} A${w*.5} ${w*.5} 0 0 0 ${cx+w*.5} ${60+l} C${cx+w*.5} ${44+l*.6} ${cx+w} ${38+l*.4} ${cx+w} 18 Z" fill="${A}"/>`+dot(cx,60+l,w*.2,B);
+   const g=k%3===0?drip(32,13,L)+drip(70,16,L*.4):drip(52,20,L)+dot(48,40,3,B);
+   return `<rect x="4" y="4" width="92" height="16" rx="${k%2?8:3}" fill="${F}"/>`+g}},
+ {n:"Bubble V",fam:"Letterform",d:"The V of LSR-Vis built from a chain of aphrons shrinking to the point.",
+  s:(F,A,B,k)=>{const n=[4,5,6][k%3],sp=80/(n-1),rmax=Math.min(11,sp*.55);let g="";
+   for(let i=0;i<n;i++){const t=i/(n-1)*.86,r=rmax-(rmax-3.5)*(i/(n-1)),c=k%2?(i<n/2?F:A):(i%2?A:F);g+=dot(10+40*t,10+78*t,r,c)+dot(90-40*t,10+78*t,r,c)}
+   return g+dot(50,92,5,A)}},
+ {n:"Micelle",fam:"Aphron",d:"Surfactant molecules standing round a gas core, heads out, tails in.",
+  s:(F,A,B,k)=>{const n=[8,10,12,14,16][k%5],hr=n>12?4.5:6;let g=dot(50,50,16,A);
+   for(let i=0;i<n;i++){const t=i*2*Math.PI/n,c=Math.cos(t),s=Math.sin(t);
+    g+=(k%2?`<path d="${zig(50+20*c,50+20*s,t,14,4,2.2)}" fill="none" stroke="${F}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`:`<path d="M${N(50+20*c)} ${N(50+20*s)} L${N(50+34*c)} ${N(50+34*s)}" stroke="${F}" stroke-width="3" stroke-linecap="round"/>`)+dot(50+(34+hr+1)*c,50+(34+hr+1)*s,hr,F)}
+   return g}},
+ {n:"Micrograph",fam:"Lab",d:"A microscope field of aphrons with a scale bar.",
+  s:(F,A,B,k)=>{let g=ring(50,50,48,F,k%2?3:6);if(k%2)g+=`<path d="M50 2 V9 M50 91 V98 M2 50 H9 M91 50 H98" stroke="${F}" stroke-width="3"/>`;
+   g+=pack(rng(1700+k*7),50,46,34,5+k%3,3,16,3).map((q,i)=>q.r>8?ring(q.x,q.y,q.r,i%2?A:F,q.r>12?4:3):dot(q.x,q.y,q.r,i%2?F:A)).join("");
+   return g+`<path d="M38 86 H58 M38 83 V89 M58 83 V89" stroke="${F}" stroke-width="2.5"/>`}},
+ {n:"Lab beaker",fam:"Lab",d:"A beaker of fluid with aphrons suspended in it.",
+  s:(F,A,B,k)=>{const lv=40+(k%4)*8,R=Math.min(18,(91-lv)/2-2);
+   let g=`<path d="M27 ${lv} H73 V80 Q73 91 62 91 H38 Q27 91 27 80 Z" fill="${A}"/>`+pack(rng(1800+k),50,(lv+91)/2,R,3+k%2,2.5,6,2.5).map(q=>dot(q.x,q.y,q.r,B)).join("");
+   return g+`<path d="M16 6 H24 V80 Q24 94 38 94 H62 Q76 94 76 80 V6" fill="none" stroke="${F}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><path d="M24 20 H36 M24 30 H32" stroke="${F}" stroke-width="3"/>`}},
+ {n:"Shear plates",fam:"Rheology",d:"Fluid between a moving plate and a fixed one, the textbook picture of shear.",
+  s:(F,A,B,k)=>{const n=3+k%2,prof=k%3===2;let g=`<rect x="4" y="4" width="92" height="10" rx="2" fill="${F}"/><rect x="4" y="86" width="92" height="10" rx="2" fill="${F}"/>`,tips=[];
+   for(let i=0;i<n;i++){const y=26+i*(48/(n-1)),len=78*(1-i/n),x2=10+len;tips.push([x2+12,y]);const c=prof?F:A;
+    g+=`<path d="M10 ${N(y)} H${N(x2)}" stroke="${c}" stroke-width="5" stroke-linecap="round"/><polygon points="${N(x2)},${N(y-6)} ${N(x2+12)},${N(y)} ${N(x2)},${N(y+6)}" fill="${c}"/>`}
+   if(prof)g+=`<path d="${poly(tips)}" fill="none" stroke="${A}" stroke-width="3" stroke-dasharray="3 4" stroke-linecap="round"/>`;return g}},
+ {n:"Field seal",fam:"Letterform",d:"A circular stamp with the system name around the ring, like a field ticket stamp.",
+  s:(F,A,B,k)=>{let g=`<defs><path id="s${"UID"}" d="M50 50 m-34 0 a34 34 0 1 1 68 0 a34 34 0 1 1 -68 0"/></defs>`+ring(50,50,49,F,3)+(k%2?ring(50,50,45,F,1.5):"")+ring(50,50,24,F,2);
+   g+=`<text font-family="'IBM Plex Mono',monospace" font-weight="600" font-size="8" letter-spacing="1.85" fill="${F}"><textPath href="#s${"UID"}">LSR-VIS · APHRON FLUID SYSTEM · </textPath></text>`;
+   const t=k%3;if(t===0)g+=dot(50,50,12,A)+dot(46,46,4,B);else if(t===1)g+=`<path d="M38 42 H44 C50 42 50 58 62 58" fill="none" stroke="${A}" stroke-width="4" stroke-linecap="round"/>`;else g+=dot(45,46,7,A)+dot(57,54,5,A)+dot(46,58,3,F);return g}},
+ {n:"Four-cell monogram",fam:"Letterform",d:"L, S, R and V each given a cell of a two-by-two block.",
+  s:(F,A,B,k,font)=>{const ff=`font-family="'${font.f}'" font-weight="${font.w}"${font.i?' font-style="italic"':''} text-anchor="middle" dominant-baseline="central" fill="${B}"`;
+   const cells=[[25,25,"L"],[75,25,"S"],[25,75,"R"],[75,75,"V"]];
+   return cells.map((c,i)=>{const col=(i===0||i===3)?F:A;return (k%2?dot(c[0],c[1],23,col):`<rect x="${c[0]-23}" y="${c[1]-23}" width="46" height="46" rx="${k%4<2?0:8}" fill="${col}"/>`)+`<text x="${c[0]}" y="${c[1]}" ${ff} font-size="${k%2?28:32}">${c[2]}</text>`}).join("")}},
+ {n:"Pressure transient",fam:"Rheology",d:"A pressure spike damping out as the fluid seals the zone.",
+  s:(F,A,B,k)=>{const lam=22+k*3,pts=[];for(let x=4;x<=96;x+=1.5){const t=x-4;pts.push([x,50-40*Math.exp(-t/lam)*Math.sin(t/(5+k%3))])}
+   return `<path d="M4 50 H96" stroke="${A}" stroke-width="2.5" stroke-dasharray="${k%2?"2 4":"6 4"}"/><path d="${poly(pts)}" fill="none" stroke="${F}" stroke-width="${k%2?5:6.5}" stroke-linecap="round" stroke-linejoin="round"/>`+dot(96,50,5,A)}},
+ {n:"Non-coalescing pair",fam:"Aphron",d:"Two aphrons touching without merging. Their shells keep them apart.",
+  s:(F,A,B,k)=>{const r1=26+(k%3)*2,r2=Math.min(16+(k%4)*2,45-r1),x1=4+r1,x2=x1+r1+r2+1.5;
+   return dot(x1,50,r1,F)+dot(x1-r1*.35,50-r1*.35,r1*.2,B)+(k%2?dot(x2,50,r2,A):ring(x2,50,r2,A,6))}},
+ {n:"Thief zone",fam:"Reservoir",d:"A wellbore passing a weak zone, with aphrons packed into it so fluid stays in the hole.",
+  s:(F,A,B,k)=>{let g=`<rect x="42" y="0" width="16" height="100" fill="${A}"/><path d="M40 0 V100 M60 0 V100" stroke="${F}" stroke-width="6"/>`;
+   if(k%2)g+=`<path d="M0 34 H36 M64 34 H100 M0 70 H36 M64 70 H100" stroke="${F}" stroke-width="2" stroke-dasharray="3 3"/>`;
+   const r=rng(2400+k);g+=pack(r,82,52,15,4+k%3,3,7,2).map(q=>dot(q.x,q.y,q.r,F)).join("")+pack(r,18,52,15,4+k%3,3,7,2).map(q=>dot(q.x,q.y,q.r,F)).join("");return g}},
+ {n:"Bubble trail",fam:"Aphron",d:"An arc of aphrons growing as they lift away.",
+  s:(F,A,B,k)=>{const n=5+k%3;let g="";for(let i=0;i<n;i++){const t=i/(n-1);g+=dot(8+t*74,90-80*Math.sin(Math.PI/2*t),3+i*(13/(n-1)),(i%2)^(k%2)?A:F)}return g}},
+ {n:"Nested shells",fam:"Aphron",d:"Shells inside shells, all touching at one point, like layered aphron walls.",
+  s:(F,A,B,k)=>{const n=3+k%3;let g="";for(let i=0;i<n;i++){const r=46-i*(36/n);g+=dot(50,96-r,r,i===n-1?A:(i%2?B:F))}return `<g transform="rotate(${k*36} 50 50)">${g}</g>`}},
+ {n:"Bubble L",fam:"Letterform",d:"The L of LSR-Vis set in aphrons.",
+  s:(F,A,B,k)=>{const P=[[20,10],[20,29],[20,48],[20,67],[20,86],[39,86],[58,86],[77,86]];
+   return P.map((p,i)=>{const r=k%2?Math.max(4,9.5-i*.8):8;return dot(p[0],p[1],r,(k%2?i===P.length-1:i===4)?A:F)}).join("")}},
+ {n:"Marsh funnel",fam:"Lab",d:"The Marsh funnel, the field test for drilling-fluid viscosity, with drops leaving the spout.",
+  s:(F,A,B,k)=>{let g;if(k%2)g=`<polygon points="12,10 88,10 56,64 56,78 44,78 44,64" fill="${F}"/><path d="M27 30 H73" stroke="${B}" stroke-width="3"/>`+dot(42,44,4,B)+dot(55,40,3,B);
+   else g=`<polygon points="22,24 78,24 54,60 46,60" fill="${A}"/><polygon points="12,10 88,10 56,64 56,78 44,78 44,64" fill="none" stroke="${F}" stroke-width="5" stroke-linejoin="round"/>`;
+   if(k%3===0)g+=`<path d="M18 18 H82" stroke="${F}" stroke-width="2" stroke-dasharray="3 3"/>`;return g+dot(50,88,5,A)+dot(50,98,2.5,A)}},
+ {n:"Rheogram",fam:"Rheology",d:"Measured points and a fitted curve from a viscometer run.",
+  s:(F,A,B,k)=>{const r=rng(2900+k*3),f=x=>18+64*(1-Math.exp(-(x-14)/28));let g="";
+   if(k%2)for(let i=1;i<4;i++)g+=`<path d="M${8+i*22} 4 V92 M8 ${4+i*22} H96" stroke="${F}" stroke-width="1" opacity=".25"/>`;
+   const fit=[];for(let x=14;x<=94;x+=2)fit.push([x,f(x)]);g+=`<path d="M6 2 V94 H98" fill="none" stroke="${F}" stroke-width="5" stroke-linejoin="round"/><path d="${poly(fit)}" fill="none" stroke="${A}" stroke-width="3.5" stroke-linecap="round"/>`;
+   for(let i=0;i<8;i++){const x=16+i*11;g+=k%3===0?ring(x,f(x)+(r()-.5)*9,4.5,F,2.5):dot(x,f(x)+(r()-.5)*9,4,F)}return g}},
+ {n:"Viscometer cup",fam:"Rheology",d:"A rotational viscometer seen from above: rotor, bob and the sheared fluid between them.",
+  s:(F,A,B,k)=>{let g=ring(50,50,48,F,6)+(k%2?ring(50,50,22,F,6):dot(50,50,22,F));
+   const r=rng(3000+k),n=7+k%3;for(let i=0;i<n;i++){const a=(i+r()*.5)*2*Math.PI/n,rr=33+(r()-.5)*4;g+=dot(50+rr*Math.cos(a),50+rr*Math.sin(a),2.5+r()*3.5,A)}
+   const a0=-140*Math.PI/180,a1=110*Math.PI/180,R=12.5,c=k%2?F:B,ex=50+R*Math.cos(a1),ey=50+R*Math.sin(a1),tx=-Math.sin(a1),ty=Math.cos(a1),nx=Math.cos(a1),ny=Math.sin(a1);
+   return g+`<path d="M${N(50+R*Math.cos(a0))} ${N(50+R*Math.sin(a0))} A${R} ${R} 0 1 1 ${N(ex)} ${N(ey)}" fill="none" stroke="${c}" stroke-width="3.5"/><polygon points="${N(ex+tx*6)},${N(ey+ty*6)} ${N(ex+nx*4.5)},${N(ey+ny*4.5)} ${N(ex-nx*4.5)},${N(ey-ny*4.5)}" fill="${c}"/>`}},
+ {n:"Halftone",fam:"Aphron",d:"A halftone field of bubbles that grows across the mark, the size distribution as texture.",
+  s:(F,A,B,k)=>{const g0=6+k%2,sp=92/(g0-1),rmax=sp*.48,t=k%3;let g="";
+   for(let i=0;i<g0;i++)for(let j=0;j<g0;j++){const u=i/(g0-1),v=j/(g0-1);const f=t===0?(u+v)/2:t===1?1-Math.min(1,Math.hypot(u,1-v)/1.2):v;const r=.8+(rmax-.8)*f;if(r<1.3)continue;g+=dot(4+i*sp,4+j*sp,r,f>.86?A:F)}return g}},
+ {n:"Size distribution",fam:"Aphron",d:"A histogram of aphron sizes: the narrow spread that makes the fluid behave.",
+  s:(F,A,B,k)=>{const mu=1.15+(k%3)*.2,h=[];for(let i=0;i<7;i++)h.push(Math.exp(-Math.pow(Math.log(i+1)-mu,2)/(2*.25)));const m=Math.max(...h);
+   let g="",tops=[],mx=h.indexOf(m);h.forEach((v,i)=>{const hh=8+76*v/m,x=5+i*13;tops.push([x+5,94-hh-6]);g+=`<rect x="${x}" y="${N(94-hh)}" width="10" height="${N(hh)}" rx="${k%4<2?0:5}" fill="${!(k%2)&&i===mx?A:F}"/>`});
+   if(k%2)g+=`<path d="${poly(tops)}" fill="none" stroke="${A}" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`+tops.map(p=>dot(p[0],p[1],3.2,A)).join("");
+   return g+`<rect x="2" y="95" width="96" height="4" fill="${F}"/>`}},
+ {n:"Pressure-depth",fam:"Reservoir",d:"Pressure against depth: the reservoir line falls away from the hydrostatic line in a depleted zone.",
+  s:(F,A,B,k)=>{const bx=44+(k%3)*6,by=46+(k%3)*4;let g=`<path d="M6 6 H98 M6 6 V98" stroke="${F}" stroke-width="6" stroke-linecap="round"/>`;
+   if(k%2)g+=`<rect x="8" y="${by+10}" width="90" height="26" fill="${A}" opacity=".18"/>`;
+   return g+`<path d="M6 6 L92 92" stroke="${F}" stroke-width="3" stroke-dasharray="4 4"/><path d="M6 6 L${bx} ${by} L${bx+8} 96" fill="none" stroke="${A}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>`+dot(bx,by,6,F)}},
+ {n:"Glass bubble",fam:"Aphron",d:"A single bubble drawn with a glint, the simplest possible aphron.",
+  s:(F,A,B,k)=>{const w=5+(k%3)*2.5;if(k%2)return dot(50,50,48,A)+`<path d="M24 40 A28 28 0 0 1 40 22" fill="none" stroke="${B}" stroke-width="6" stroke-linecap="round"/>`+dot(47,20,3.5,B);
+   return ring(50,50,48,F,w)+`<path d="M22 44 A30 30 0 0 1 38 22" fill="none" stroke="${A}" stroke-width="${w}" stroke-linecap="round"/>`+dot(48,18,w*.55,A)}},
+ {n:"Spiral",fam:"Rheology",d:"A slow spiral of fluid closing on a single bubble.",
+  s:(F,A,B,k)=>{const turns=2.25+(k%3)*.5,dir=k%2?-1:1,pts=[];for(let t=0;t<=1.0001;t+=.01){const a=dir*t*turns*2*Math.PI,r=6+38*t;pts.push([50+r*Math.cos(a),50+r*Math.sin(a)])}
+   const e=pts[pts.length-1];return `<path d="${poly(pts)}" fill="none" stroke="${F}" stroke-width="${k%2?5:6.5}" stroke-linecap="round"/>`+(k%4<2?dot(50,50,6,A):dot(e[0],e[1],7,A))}},
+ {n:"Streamlines",fam:"Rheology",d:"Flow parting smoothly around a bubble: low shear, no turbulence.",
+  s:(F,A,B,k)=>{const R=16+(k%3)*3,ys=k%2?[8,20,34]:[6,16,27,38];let g="";
+   const solve=(x,y0)=>{let lo=Math.sqrt(Math.max(0,R*R-x*x))+.01,hi=90;for(let i=0;i<40;i++){const m=(lo+hi)/2,f=m*(1-R*R/(x*x+m*m))-y0;f>0?hi=m:lo=m}return(lo+hi)/2};
+   ys.forEach(y0=>{[1,-1].forEach(s=>{const pts=[];for(let x=-46;x<=46;x+=2)pts.push([50+x,50-s*solve(x,y0)]);g+=`<path d="${poly(pts)}" fill="none" stroke="${F}" stroke-width="3" stroke-linecap="round"/>`})});
+   return g+dot(50,50,R-3,A)+dot(50-R*.35,50-R*.35,R*.18,B)}},
+ {n:"Annulus",fam:"Wellbore",d:"A wellbore in cross-section: casing, drill string, and aphrons in the annulus between them.",
+  s:(F,A,B,k)=>{let g=ring(50,50,48,F,5)+(k%2?ring(50,50,20,F,6):dot(50,50,20,F));const r=rng(3700+k),n=7+k%3;
+   for(let i=0;i<n;i++){const a=(i+r()*.4)*2*Math.PI/n,rr=33+(r()-.5)*5;g+=dot(50+rr*Math.cos(a),50+rr*Math.sin(a),3+r()*4,i%3===0?F:A)}return g}},
+ {n:"Helix chain",fam:"Aphron",d:"Two strands of aphrons twisting past each other.",
+  s:(F,A,B,k)=>{const ph=k*.5,items=[];let rungs="";
+   for(let i=0;i<9;i++){const x=8+i*10.5,a=ph+i*.72,y1=50+26*Math.sin(a),y2=50-26*Math.sin(a),d=Math.cos(a);
+    if(k%2)rungs+=`<path d="M${N(x)} ${N(y1)} V${N(y2)}" stroke="${F}" stroke-width="1.5" opacity=".35"/>`;
+    items.push({x,y:y1,r:4+3*(1+d)/2,c:F,z:d},{x,y:y2,r:4+3*(1-d)/2,c:A,z:-d})}
+   return rungs+items.sort((a,b)=>a.z-b.z).map(o=>dot(o.x,o.y,o.r,o.c)).join("")}},
+ {n:"Shield",fam:"Reservoir",d:"A shield holding a few aphrons: the fluid protecting the formation.",
+  s:(F,A,B,k)=>{const d="M50 4 L90 16 V48 C90 72 72 88 50 96 C28 88 10 72 10 48 V16 Z";
+   if(k%2)return `<path d="${d}" fill="none" stroke="${F}" stroke-width="6" stroke-linejoin="round"/>`+dot(50,44,13,A)+dot(35,63,7,A)+dot(64,65,9,F);
+   return `<path d="${d}" fill="${F}"/>`+dot(50,44,13,k%4<2?A:B)+dot(35,63,7,B)+dot(64,65,9,B)}},
+ {n:"Bridge",fam:"Reservoir",d:"Aphrons spanning the gap between two blocks of rock.",
+  s:(F,A,B,k)=>{let g=`<rect x="2" y="40" width="22" height="58" rx="2" fill="${F}"/><rect x="76" y="40" width="22" height="58" rx="2" fill="${F}"/>`;
+   if(k%2===0){const n=7;for(let i=0;i<n;i++){const a=Math.PI+i*Math.PI/(n-1);g+=dot(50+31*Math.cos(a),40+31*Math.sin(a),6.2,i%2?F:A)}return g}
+   [[46,[30,43,56,69]],[57,[36.5,49.5,62.5]],[68,[30,43,56,69]]].forEach((row,j)=>row[1].forEach((x,i)=>{g+=dot(x,row[0],6,(i+j)%3===0?F:A)}));return g}},
+ {n:"Lens",fam:"Lab",d:"A lens-shaped eye with an aphron for a pupil: looking closely at the fluid.",
+  s:(F,A,B,k)=>{const d="M3 50 Q50 2 97 50 Q50 98 3 50 Z";return (k%2?`<path d="${d}" fill="${F}"/>`:`<path d="${d}" fill="none" stroke="${F}" stroke-width="5" stroke-linejoin="round"/>`)+dot(50,50,15,A)+dot(45,45,4.5,B)}},
+ {n:"Honeycomb",fam:"Aphron",d:"Seven foam cells packed together, a few filled.",
+  s:(F,A,B,k)=>{const C=[[50,50],[24,50],[76,50],[37,27.5],[63,27.5],[37,72.5],[63,72.5]],r=rng(4200+k*5);let acc=Math.floor(r()*7);
+   return C.map((c,i)=>{const t=i===acc?2:(r()<.4?1:0);return t===0?`<polygon points="${hex(c[0],c[1],13,0)}" fill="none" stroke="${F}" stroke-width="3.5" stroke-linejoin="round"/>`:`<polygon points="${hex(c[0],c[1],14.5,0)}" fill="${t===2?A:F}"/>`}).join("")}},
+ {n:"Rack",fam:"Aphron",d:"Aphrons racked in a triangle, one picked out.",
+  s:(F,A,B,k)=>{const rows=k%2?3:4,r=rows===4?11.5:15,s=2*r+2,top=50-((rows-1)*s*.866)/2;let g="",idx=0;const tot=rows*(rows+1)/2,acc=k%tot;
+   for(let i=0;i<rows;i++)for(let j=0;j<=i;j++){const x=50+(j-i/2)*s,y=top+i*s*.866;g+=idx===acc?dot(x,y,r,A):(k%3===2&&idx%3===1?ring(x,y,r,F,3.5):dot(x,y,r,F));idx++}return g}},
+ {n:"Bubble block",fam:"Aphron",d:"A solid block with bubbles cut through it.",
+  s:(F,A,B,k)=>{const rx=[6,18,30,50][k%4];return `<rect x="0" y="0" width="100" height="100" rx="${rx}" fill="${F}"/>`+pack(rng(4400+k*9),50,50,rx===50?36:40,4+k%3,4,18,4).map((q,i)=>dot(q.x,q.y,q.r,i===1?A:B)).join("")}},
+ {n:"Surfactant",fam:"Aphron",d:"The surfactant molecule that builds every aphron shell: water-loving head, oil-loving tail.",
+  s:(F,A,B,k)=>{const t=k%3,mol=(x,y,ang,len)=>`<path d="${zig(x+Math.cos(ang)*10,y+Math.sin(ang)*10,ang,len,6,4)}" fill="none" stroke="${F}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`+dot(x,y,9,A);
+   if(t===0)return mol(20,20,Math.PI/4,82);
+   if(t===1)return [-90,30,150].map(a=>{const r=a*Math.PI/180;return mol(50+40*Math.cos(r),50+40*Math.sin(r),r+Math.PI,30)}).join("");
+   return mol(9,30,0,32)+mol(91,30,Math.PI,32)+mol(9,70,0,32)+mol(91,70,Math.PI,32)}},
+ {n:"Ripple",fam:"Aphron",d:"A drop meeting the surface and spreading out in rings.",
+  s:(F,A,B,k)=>{let g=k%2?dot(50,26,12,A)+dot(46,22,3.5,B):`<path d="M50 4 C58 18 64 24 64 32 A14 14 0 0 1 36 32 C36 24 42 18 50 4 Z" fill="${A}"/>`;
+   [16,30,46].forEach((rx,i)=>{g+=`<ellipse cx="50" cy="${78}" rx="${rx}" ry="${N(rx*.3)}" fill="none" stroke="${i===0&&k%3===0?A:F}" stroke-width="${k%2?4:5}"/>`});return g}},
+ {n:"Fracture network",fam:"Reservoir",d:"A branching fracture network with aphrons sealing the tips.",
+  s:(F,A,B,k)=>{const r=rng(4700+k*11);let g="",tips="";
+   const br=(x,y,a,len,d)=>{const x2=Math.max(4,Math.min(96,x+len*Math.cos(a))),y2=Math.max(4,y+len*Math.sin(a));g+=`<path d="M${N(x)} ${N(y)} L${N(x2)} ${N(y2)}" stroke="${F}" stroke-width="${2+d*1.4}" stroke-linecap="round"/>`;
+    if(d===0){tips+=dot(x2,y2,3.5+r()*2.5,A);return}const sp=.35+r()*.3;br(x2,y2,a-sp,len*.68,d-1);br(x2,y2,a+sp,len*.68,d-1)};
+   br(50,98,-Math.PI/2+(r()-.5)*.3,34,3);return g+tips}},
+ {n:"Riser",fam:"Wellbore",d:"A pipe tee with aphrons rising up the branch.",
+  s:(F,A,B,k)=>{let g=`<path d="M4 72 H96 M50 72 V6" fill="none" stroke="${F}" stroke-width="26" stroke-linecap="${k%2?"round":"butt"}"/>`;
+   [[50,58,5],[50,42,4],[50,26,3.2],[50,14,2.4]].forEach((p,i)=>{g+=dot(p[0]+(i%2?2:-2),p[1],p[2]*(1+(k%3)*.12),B)});
+   if(k%2===0)g+=`<polygon points="14,64 26,72 14,80" fill="${A}"/><polygon points="86,64 74,72 86,80" fill="${A}"/>`;else g+=dot(22,72,4,A)+dot(78,72,4,A);return g}},
+ {n:"Stopwatch",fam:"Lab",d:"Seconds per quart, the Marsh funnel reading, as a stopwatch.",
+  s:(F,A,B,k)=>{let g=ring(50,56,40,F,k%2?4.5:7)+`<rect x="43" y="2" width="14" height="7" rx="2" fill="${F}"/><rect x="47" y="8" width="6" height="9" fill="${F}"/>`;
+   if(k%3)for(let i=0;i<12;i++){const a=i*Math.PI/6;g+=`<path d="M${N(50+27*Math.cos(a))} ${N(56+27*Math.sin(a))} L${N(50+31*Math.cos(a))} ${N(56+31*Math.sin(a))}" stroke="${F}" stroke-width="2.5"/>`}
+   const a=(-90+k*33)*Math.PI/180;return g+`<path d="M50 56 L${N(50+24*Math.cos(a))} ${N(56+24*Math.sin(a))}" stroke="${A}" stroke-width="5" stroke-linecap="round"/>`+dot(50,56,5,F)+dot(50+24*Math.cos(a),56+24*Math.sin(a),4,A)}},
+ {n:"LV stroke",fam:"Letterform",d:"L and V drawn in one weight with a bubble caught inside the V.",
+  s:(F,A,B,k)=>{const w=[10,13,16][k%3],j=k%2?"round":"miter",c1=k%4<2?F:A,c2=k%4<2?A:F;const br=Math.max(3,(27-w)/2-1.5);
+   return `<path d="M14 8 V88 H40" fill="none" stroke="${c1}" stroke-width="${w}" stroke-linejoin="${j}" stroke-linecap="${j==="round"?"round":"butt"}"/><path d="M48 8 L68 88 L88 8" fill="none" stroke="${c2}" stroke-width="${w}" stroke-linejoin="${j}" stroke-linecap="${j==="round"?"round":"butt"}"/>`+dot(68,30,br,c1)}}
+];
+
+const FAMS=["Aphron","Rheology","Reservoir","Wellbore","Lab","Letterform"];
+const LAYOUTS=["Horizontal","Stacked","Mark right","Emblem","Roundel","Badge","Mark as hyphen","Left stack","Superscript","Pill"];
+const STYLES=["Solid","Tracked caps","Lowercase","Two-tone","Accent hyphen","Outline","Stacked","Slanted","Mixed serif","Reversed box","Wave underline","Tagline"];
+
+/* ---------- wordmarks ---------- */
+function word(st,font,x,y,size,anchor,F,A,B){
+  const ff=`font-family="'${font.f}'" font-weight="${font.w}"${font.i?' font-style="italic"':''}`;
+  const T=(txt,extra="",fill=F,sz=size,yy=y,xx=x)=>`<text x="${N(xx)}" y="${N(yy)}" ${ff} font-size="${N(sz)}" text-anchor="${anchor}" dominant-baseline="central" fill="${fill}" ${extra}>${txt}</text>`;
+  switch(st){
+    case 0:return T("LSR-Vis");
+    case 1:return T("LSR-VIS",`letter-spacing="${N(size*.18)}"`);
+    case 2:return T("lsr-vis");
+    case 3:return T(`LSR<tspan fill="${A}">-Vis</tspan>`);
+    case 4:return T(`LSR<tspan fill="${A}">-</tspan>Vis`);
+    case 5:return T("LSR-Vis",`stroke="${F}" stroke-width="${N(size*.035)}" stroke-linejoin="round"`,"none");
+    case 6:return `<g class="stk">`+T("LSR","",F,size*.86,y-size*.5)+`<rect class="autorule" x="${x}" y="${N(y-size*.04)}" width="1" height="${N(size*.08)}" fill="${A}"/>`+T("VIS","",F,size*.86,y+size*.5)+`</g>`;
+    case 7:return `<g transform="translate(${N(x)} ${N(y)}) skewX(-12)">`+T("LSR-VIS",`letter-spacing="${N(size*.04)}"`,F,size,0,0)+`</g>`;
+    case 8:return T(`LSR-<tspan font-family="'Instrument Serif',serif" font-weight="400" font-style="italic" fill="${A}" font-size="${N(size*1.14)}">Vis</tspan>`);
+    case 9:return `<g class="bx"><rect class="autobox" fill="${F}" rx="${N(size*.06)}" width="0" height="0"/>`+T("LSR-VIS",`letter-spacing="${N(size*.03)}"`,B,size*.82)+`</g>`;
+    case 10:return `<g class="wv" data-s="${size}">`+T("LSR-Vis")+`<path class="autowave" fill="none" stroke="${A}" stroke-width="${N(size*.06)}" stroke-linecap="round" d="M0 0"/></g>`;
+    case 11:return T("LSR-Vis")+`<text x="${N(x)}" y="${N(y+size*.8)}" font-family="'IBM Plex Mono',monospace" font-weight="600" font-size="${N(size*.19)}" letter-spacing="${N(size*.05)}" text-anchor="${anchor}" dominant-baseline="central" fill="${A}">APHRON FLUID SYSTEM</text>`;
+  }
+}
+function hyphenWord(st,font,F,A,size){
+  const ff=`font-family="'${font.f}'" font-weight="${font.w}"${font.i?' font-style="italic"':''} font-size="${size}" dominant-baseline="central"`;
+  const lower=st===2,upper=[1,6,7,9].includes(st);
+  const a=lower?"lsr":"LSR",b=lower?"vis":upper?"VIS":"Vis";
+  const cb=[3,4,8,10].includes(st)?A:F,out=st===5?` stroke="${F}" stroke-width="${N(size*.035)}"`:"";
+  const fb=st===8?`font-family="'Instrument Serif',serif" font-weight="400" font-style="italic" font-size="${N(size*1.14)}" dominant-baseline="central"`:ff;
+  return [`<text x="0" y="50" ${ff} text-anchor="end" fill="${st===5?"none":F}"${out}>${a}</text>`,`<text x="96" y="50" ${fb} text-anchor="start" fill="${st===5?"none":cb}"${out}>${b}</text>`];
+}
+
+/* ---------- logos ---------- */
+const LOGOS=[];
+for(let k=0;k<10;k++)for(let m=0;m<50;m++){
+  let lay=(k+m*3)%10,st=(k*5+m*7+3)%12;
+  if(lay===6&&MARKS[m].fam==="Letterform")lay=0; // a letter between LSR and Vis would misspell the name
+  if((lay===3||lay===4)&&st===11)st=1;
+  LOGOS.push({i:LOGOS.length,m,k,lay,st,font:(m*7+k*11)%30,ink:(m*3+k*7)%16});
+}
+function inner(L,uid,ink){
+  const I=ink||INKS[L.ink],F=I.F,A=I.A,B=W,font=FONTS[L.font],M=MARKS[L.m];
+  const mk=(f,a,b)=>M.s(f,a,b,L.k,font).split("UID").join(uid);
+  const st=L.st;
+  switch(L.lay){
+    case 0:return `<g>${mk(F,A,B)}</g>`+word(st,font,124,50,60,"start",F,A,B);
+    case 1:return `<g>${mk(F,A,B)}</g>`+word(st,font,50,st===6?170:150,46,"middle",F,A,B);
+    case 2:return word(st,font,-22,50,60,"end",F,A,B)+`<g>${mk(F,A,B)}</g>`;
+    case 3:return `<g>${mk(F,A,B)}</g>`+word(st,font,50,st===6?142:132,24,"middle",F,A,B);
+    case 4:return `<g class="framed"><g transform="translate(20 0) scale(.6)">${mk(F,A,B)}</g>${word(st,font,50,st===6?90:84,17,"middle",F,A,B)}</g><circle class="autoring" fill="none" stroke="${F}" stroke-width="2.5" cx="50" cy="50" r="1"/>`;
+    case 5:return `<rect x="0" y="0" width="120" height="120" rx="${[0,16,60][L.k%3]}" fill="${F}"/><g transform="translate(16 16) scale(.88)">${mk(B,I.aB||A,F)}</g>`+word(st,font,146,60,66,"start",F,A,B);
+    case 6:{const w=hyphenWord(st,font,F,A,70);return w[0]+`<g transform="translate(12 15) scale(.7)">${mk(F,A,B)}</g>`+w[1]}
+    case 7:return `<g>${mk(F,A,B)}</g>`+word(st,font,0,st===6?156:134,48,"start",F,A,B);
+    case 8:return word(st,font,0,50,70,"end",F,A,B)+`<g transform="translate(10 -16) scale(.6)">${mk(F,A,B)}</g>`;
+    case 9:return `<g class="framed"><g transform="translate(0 14) scale(.72)">${mk(F,A,B)}</g>${word(st,font,92,50,44,"start",F,A,B)}</g><rect class="autoframe" fill="none" stroke="${F}" stroke-width="3" width="0" height="0"/>`;
+  }
+}
+const svgFor=(L,uid,ink)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="LSR-Vis logo ${code(L.i)}"><g class="c">${inner(L,uid,ink)}</g></svg>`;
+const code=i=>"W"+String(i+1).padStart(3,"0");
+
+function finish(svg){
+  try{
+    svg.querySelectorAll(".bx").forEach(g=>{const b=g.querySelector("text").getBBox(),r=g.querySelector(".autobox"),px=b.height*.3,py=b.height*.1;
+      r.setAttribute("x",N(b.x-px));r.setAttribute("y",N(b.y-py));r.setAttribute("width",N(b.width+2*px));r.setAttribute("height",N(b.height+2*py))});
+    svg.querySelectorAll(".stk").forEach(g=>{const ts=[...g.querySelectorAll("text")].map(t=>t.getBBox()),x0=Math.min(...ts.map(b=>b.x)),x1=Math.max(...ts.map(b=>b.x+b.width)),r=g.querySelector(".autorule");
+      r.setAttribute("x",N(x0));r.setAttribute("width",N(x1-x0))});
+    svg.querySelectorAll(".wv").forEach(g=>{const b=g.querySelector("text").getBBox(),s=+g.dataset.s,y=b.y+b.height+s*.02,n=Math.max(4,Math.round(b.width/(s*.3))),seg=b.width/n,a=s*.06;
+      let d=`M${N(b.x)} ${N(y)}`;for(let i=0;i<n;i++)d+=` q${N(seg/2)} ${N(i%2?a:-a)} ${N(seg)} 0`;g.querySelector(".autowave").setAttribute("d",d)});
+    svg.querySelectorAll(".autoring").forEach(c=>{const b=c.parentNode.querySelector(".framed").getBBox();
+      c.setAttribute("cx",N(b.x+b.width/2));c.setAttribute("cy",N(b.y+b.height/2));c.setAttribute("r",N(Math.hypot(b.width,b.height)/2+4))});
+    svg.querySelectorAll(".autoframe").forEach(r=>{const b=r.parentNode.querySelector(".framed").getBBox(),p=14;
+      r.setAttribute("x",N(b.x-p-6));r.setAttribute("y",N(b.y-p));r.setAttribute("width",N(b.width+2*p+12));r.setAttribute("height",N(b.height+2*p));r.setAttribute("rx",N((b.height+2*p)/2))});
+    const b=svg.querySelector("g.c").getBBox();if(!b.width)return;const p=Math.max(b.width,b.height)*.04;
+    svg.setAttribute("viewBox",`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`);
+  }catch(e){}
+}
+
+/* ---------- page ---------- */
+let favs=new Set();
+try{favs=new Set(JSON.parse(localStorage.getItem("lsrv-white-favs")||"[]"))}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem("lsrv-white-favs",JSON.stringify([...favs]))}catch(e){};document.getElementById("favn").textContent=favs.size};
+
+const grid=document.getElementById("grid");
+const frag=document.createDocumentFragment();
+LOGOS.forEach(L=>{
+  const t=document.createElement("div");
+  t.className="tile";t.tabIndex=0;t.dataset.i=L.i;t.dataset.lay=L.lay;t.dataset.fam=MARKS[L.m].fam;t.setAttribute("role","button");
+  t.setAttribute("aria-label",`${code(L.i)}: ${MARKS[L.m].n}, ${LAYOUTS[L.lay]}`);
+  t.innerHTML=`<div class="art">${svgFor(L,"t"+L.i)}</div><div class="cap"><span><b>${code(L.i)}</b> ${MARKS[L.m].n}</span><span>${LAYOUTS[L.lay]}</span></div><button class="star${favs.has(L.i)?" on":""}" aria-label="Shortlist ${code(L.i)}" aria-pressed="${favs.has(L.i)}">★</button>`;
+  t.querySelector(".star").addEventListener("click",e=>{e.stopPropagation();toggleFav(L.i)});
+  t.addEventListener("click",()=>openD(L.i));
+  t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openD(L.i)}});
+  frag.appendChild(t);
+});
+grid.appendChild(frag);
+const finishAll=()=>document.querySelectorAll(".art svg").forEach(finish);
+finishAll();(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>{finishAll();setTimeout(finishAll,500)});
+saveFavs();
+
+const famsEl=document.getElementById("fams");
+["All",...FAMS].forEach(f=>{const b=document.createElement("button");b.className="chip";b.dataset.fam=f;b.textContent=f;b.setAttribute("aria-pressed",f==="All");famsEl.appendChild(b)});
+const laySel=document.getElementById("lay");LAYOUTS.forEach((l,i)=>{const o=document.createElement("option");o.value=i;o.textContent=l;laySel.appendChild(o)});
+let fam="All",lay="all",favOnly=false;
+function applyFilter(){
+  let shown=0;
+  grid.querySelectorAll(".tile").forEach(t=>{const ok=(fam==="All"||t.dataset.fam===fam)&&(lay==="all"||t.dataset.lay===lay)&&(!favOnly||favs.has(+t.dataset.i));t.hidden=!ok;if(ok)shown++});
+  document.getElementById("empty").hidden=shown>0;document.getElementById("count").textContent=`${shown} shown`;
+}
+famsEl.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;fam=b.dataset.fam;famsEl.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));applyFilter()});
+laySel.addEventListener("change",()=>{lay=laySel.value;applyFilter()});
+const favBtn=document.getElementById("favs");
+favBtn.addEventListener("click",()=>{favOnly=!favOnly;favBtn.setAttribute("aria-pressed",favOnly);applyFilter()});
+document.getElementById("print").addEventListener("click",()=>window.print());
+applyFilter();
+function toggleFav(i){
+  favs.has(i)?favs.delete(i):favs.add(i);saveFavs();
+  const s=grid.querySelector(`.tile[data-i="${i}"] .star`);s.classList.toggle("on",favs.has(i));s.setAttribute("aria-pressed",favs.has(i));
+  if(cur===i)syncDStar();if(favOnly)applyFilter();
+}
+
+const dlg=document.getElementById("dlg");let cur=-1;
+const syncDStar=()=>{document.getElementById("dstar").textContent=favs.has(cur)?"★ Shortlisted":"☆ Shortlist"};
+function openD(i){
+  cur=i;const L=LOGOS[i],I=INKS[L.ink],F=FONTS[L.font],M=MARKS[L.m];
+  document.getElementById("big").innerHTML=svgFor(L,"d");
+  document.getElementById("dnum").innerHTML=`<span><b>${code(i)}</b> / W500</span><span>${M.fam}</span><span>Variation ${L.k+1} of 10</span>`;
+  document.getElementById("dname").textContent=M.n;
+  document.getElementById("ddesc").textContent=M.d;
+  document.getElementById("dspec").innerHTML=`<dt>Lockup</dt><dd>${LAYOUTS[L.lay]}</dd><dt>Word</dt><dd>${L.lay===6?"Split around mark":STYLES[L.st]}</dd><dt>Type</dt><dd>${F.f}${F.i?" Italic":""}</dd>
+    <dt>Ink</dt><dd>${I.n}</dd><dt>Colors</dt><dd><span class="sw" style="background:${I.F}"></span>${I.F} &nbsp;<span class="sw" style="background:${I.A}"></span>${I.A} &nbsp;on white</dd>`;
+  const one={F:I.F,A:I.F,aB:"#FFFFFF"},blk={F:"#111111",A:"#111111",aB:"#FFFFFF"};
+  document.getElementById("minis").innerHTML=`<figure><div>${svgFor(L,"m0",one)}</div><figcaption>One color</figcaption></figure><figure><div>${svgFor(L,"m1",blk)}</div><figcaption>Black only</figcaption></figure><figure><div class="sm">${svgFor(L,"m2")}</div><figcaption>Small size</figcaption></figure>`;
+  document.getElementById("fb").hidden=true;document.getElementById("copy").textContent="Copy SVG";syncDStar();
+  if(!dlg.open)dlg.showModal();
+  dlg.querySelectorAll("svg").forEach(finish);
+}
+document.getElementById("close").onclick=()=>dlg.close();
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+const step=d=>{const vis=[...grid.querySelectorAll(".tile:not([hidden])")].map(t=>+t.dataset.i);const k=vis.indexOf(cur);if(vis.length)openD(vis[(k+d+vis.length)%vis.length])};
+document.getElementById("prev").onclick=()=>step(-1);
+document.getElementById("next").onclick=()=>step(1);
+dlg.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
+document.getElementById("dstar").onclick=()=>toggleFav(cur);
+document.getElementById("copy").onclick=()=>{
+  const s=document.querySelector("#big svg").cloneNode(true);s.insertAdjacentHTML("afterbegin",`<rect x="-10000" y="-10000" width="20000" height="20000" fill="#fff"/>`);
+  const src=`<!-- LSR-Vis ${code(cur)} · font: ${FONTS[LOGOS[cur].font].f} (Google Fonts) -->\n`+s.outerHTML;
+  const b=document.getElementById("copy");
+  const fallback=()=>{const ta=document.getElementById("fb");ta.value=src;ta.hidden=false;ta.select();b.textContent="Select and copy below"};
+  try{navigator.clipboard.writeText(src).then(()=>{b.textContent="Copied"},fallback)}catch(e){fallback()}
+};
+</script>
+</body>
+</html>
