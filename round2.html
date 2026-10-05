@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LSR-Vis Round 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Google+Sans+Flex:wdth,wght@100,600;100,700;125,500;125,600;125,700&family=Google+Sans:wght@500;700&family=Lexend+Exa:wght@500&family=Lexend+Giga:wght@400&family=Krona+One&family=Syncopate:wght@700&family=Archivo:wdth,wght@100,500;100,800;125,700&family=Saira:wdth,wght@125,600&family=Unbounded:wght@500&family=Sora:wght@600&family=Red+Hat+Display:wght@700&family=Tomorrow:wght@500&family=Exo+2:wght@600&family=Outfit:wght@600&family=Orbitron:wght@600&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a working review doc. Feedback summary, then four numbered rounds of study, each a grid of white tiles; the last is an interactive font bench. */
+:root{
+  --bg:#E9E9E5; --surface:#FFFFFF; --fg:#18191B; --muted:#62645F; --line:#D2D2CC; --accent:#D98E04;
+  --display:"Google Sans","Bricolage Grotesque",system-ui,sans-serif;
+  --body:"Google Sans","Archivo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#1A1B1A; --fg:#EDEDE8; --muted:#A1A39C; --line:#33352F; color-scheme:dark}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:28px 72px}
+.nav{font-family:var(--mono);font-size:12px;letter-spacing:.04em;margin-bottom:18px;display:flex;gap:18px;flex-wrap:wrap}
+.nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--fg)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,5vw,52px);line-height:1;margin:0;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+h2{font-family:var(--display);font-weight:700;font-size:24px;margin:0;letter-spacing:-.01em}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:66ch;color:var(--muted);line-height:1.55;margin:10px 0 0}
+.heard{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:22px}
+.heard div{background:var(--surface);color:#18191B;border:1px solid var(--line);border-radius:6px;padding:14px 16px;line-height:1.45;font-size:14px}
+.heard b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6A6C66;margin-bottom:4px;font-weight:600}
+section{margin-top:48px;display:flex;flex-direction:column;gap:14px}
+.shead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.shead p{margin:0;color:var(--muted);max-width:70ch;line-height:1.5;font-size:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));align-items:start}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.tile{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;position:relative}
+.tile.sel{outline:2px solid var(--accent);outline-offset:1px}
+.art{position:relative;aspect-ratio:4/3;background:#fff}
+.grid.wide .art{aspect-ratio:2/1}
+.art svg{position:absolute;left:12%;top:12%;width:76%;height:76%;overflow:visible}
+.cap{display:flex;justify-content:space-between;gap:8px;padding:8px 11px;font-family:var(--mono);font-size:11px;color:#6A6C66;border-top:1px solid #ECECE8}
+.cap b{color:#18191B;font-weight:600}
+.cap span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap span:last-child{white-space:nowrap}
+.anatomy{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto}
+.anatomy svg{display:block;width:100%;min-width:560px;height:auto}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);color:#18191B;border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.ctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ctl .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6A6C66}
+.seg{display:inline-flex;border:1px solid #D8D8D2;border-radius:999px;overflow:hidden}
+.seg button{font:600 12.5px var(--body);border:0;background:#fff;color:#18191B;padding:6px 11px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:#18191B;color:#fff}
+select{font:600 12.5px var(--body);border:1px solid #D8D8D2;border-radius:999px;background:#fff;color:#18191B;padding:6px 10px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.preview{background:#fff;border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:2fr 1fr;overflow:hidden}
+@media (max-width:760px){.preview{grid-template-columns:1fr}}
+.pv{position:relative;aspect-ratio:21/8}
+.pv svg{position:absolute;left:8%;top:14%;width:84%;height:72%}
+.pside{border-left:1px solid #ECECE8;padding:16px;display:flex;flex-direction:column;gap:10px;color:#18191B;min-width:0}
+.pside .minis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini{position:relative;aspect-ratio:2/1;border-radius:4px;border:1px solid #E2E2DC}
+.mini svg{position:absolute;left:10%;top:15%;width:80%;height:70%}
+.mini.sm svg{left:35%;width:30%;top:35%;height:30%}
+.mini.dark{background:#111}
+.pside small{font-family:var(--mono);font-size:10.5px;color:#6A6C66}
+.btn{font:600 13px var(--body);padding:8px 13px;border-radius:6px;border:1px solid #D8D8D2;background:#fff;color:#18191B;cursor:pointer}
+.btn.pri{background:#18191B;color:#fff;border-color:#18191B}
+textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
+.loading{color:var(--muted);font-family:var(--mono);font-size:13px}
+[hidden]{display:none!important}
+@page{size:letter landscape;margin:0.4in}
+@media print{
+  :root{--bg:#fff;--fg:#18191B;--muted:#555;--line:#ccc;color-scheme:light}
+  html,body{background:#fff}.wrap{max-width:none;padding:0}
+  .nav,.controls,.acts,textarea{display:none!important}
+  section{break-inside:auto}.tile{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><a href="index.html">First 100</a><a href="white.html">White series</a><a href="wordmarks.html">One-piece wordmarks</a></div>
+  <div class="eyebrow">Round 2 · from your picks W444, W452 and #059</div>
+  <h1>LSR-Vis <span>Round 2</span></h1>
+  <p class="lede">This round keeps the clean wordmark from W444, redraws the aphron so it matches the real cross-section, takes the rising bubbles from the lateral, and starts the font search around Michroma and Google Sans.</p>
+  <div class="heard">
+    <div><b>Keep</b>The clean, slanted, wide wordmark of W444. Michroma feels different but close to Google Sans.</div>
+    <div><b>Fix</b>The bubble in W452 needs to be a clearer, accurate aphron. No off-center dot: every layer is centered, as in the cross-section.</div>
+    <div><b>Bring in</b>Bubbles rising off both the vertical and horizontal parts of the lateral, kept clean.</div>
+    <div><b>Explore</b>More typefaces near Michroma and Google Sans, including Google Sans Flex at expanded width.</div>
+  </div>
+
+  <section>
+    <div class="shead"><h2>1 · The aphron, drawn to the cross-section</h2><p>Layers from the center out, matching the CGA diagram. Every mark below is built from this, simplified step by step.</p></div>
+    <div class="anatomy" id="anatomy"></div>
+    <div class="grid" id="g-aphron"></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>2 · Lateral with rising bubbles</h2><p>The well path from #059, with aphrons lifting off the vertical and horizontal sections.</p></div>
+    <div class="grid" id="g-lateral"></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>3 · Lockups with the W444 wordmark</h2><p>Michroma, slanted, capitals, in the W444 ink. The mark is sized to the capital height so it reads as part of the type.</p></div>
+    <div class="grid wide" id="g-lockup"></div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>4 · Font bench</h2><p>Eighteen typefaces near Michroma and Google Sans. Change the mark, placement, slant, case and ink; every tile updates. Click a tile to load it in the preview.</p></div>
+    <div class="controls" id="controls"></div>
+    <div class="preview">
+      <div class="pv" id="pv"></div>
+      <div class="pside">
+        <div class="eyebrow" id="pvname"></div>
+        <div class="minis">
+          <div><div class="mini dark" id="pvdark"></div><small>On dark</small></div>
+          <div><div class="mini sm" id="pvsmall"></div><small>Small size</small></div>
+        </div>
+        <div class="acts" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" id="copy">Copy SVG</button></div>
+        <textarea class="fallback" id="fb" hidden readonly aria-label="SVG source"></textarea>
+      </div>
+    </div>
+    <p class="loading" id="loading">Loading typefaces…</p>
+    <div class="grid wide" id="g-fonts"></div>
+  </section>
+</div>
+
+<script>
+const N=v=>Math.round(v*100)/100;
+const dot=(x,y,r,f)=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="${f}"/>`;
+const ring=(x,y,r,s,w,extra="")=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="none" stroke="${s}" stroke-width="${N(w)}" ${extra}/>`;
+const around=(r,n,fn,ph=0)=>{let g="";for(let i=0;i<n;i++){const a=ph+i*2*Math.PI/n;g+=fn(50+r*Math.cos(a),50+r*Math.sin(a),a,i)}return g};
+const radial=(r1,r2,n,col,w,ph=0)=>around(1,n,(x,y,a)=>`<path d="M${N(50+r1*Math.cos(a))} ${N(50+r1*Math.sin(a))} L${N(50+r2*Math.cos(a))} ${N(50+r2*Math.sin(a))}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`,ph);
+const wavy=(r,amp,waves,ph,col,w)=>{let d="";for(let i=0;i<=180;i++){const a=i/180*2*Math.PI,rr=r+amp*Math.sin(waves*a+ph);d+=(i?"L":"M")+N(50+rr*Math.cos(a))+" "+N(50+rr*Math.sin(a))}return `<path d="${d}Z" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round"/>`};
+
+const INKS={
+  petrol:{n:"Petrol & amber (W444)",F:"#0B3C49",A:"#D98E04",T1:"#CFE3E8",T2:"#EAF2F4"},
+  graphite:{n:"Graphite & red (W452)",F:"#2B2D31",A:"#D62828",T1:"#F2D4D4",T2:"#F3F3F4"},
+  diagram:{n:"Teal & amber (diagram)",F:"#0F4C5C",A:"#E0A030",T1:"#BFE0DF",T2:"#E4F2F1"},
+  black:{n:"Black",F:"#111111",A:"#111111",T1:"#DCDCDC",T2:"#F1F1F1"}
+};
+
+/* ---------- aphron marks, 100×100, all layers concentric ---------- */
+const APHRON={
+  full:{n:"Full section",d:"All five layers: gas core, inner monolayer, viscous shell, outer bilayer, xanthan network.",
+    s:(I)=>{const{F,A,T1,T2}=I;return wavy(46,2.2,9,0,F,1.1)+wavy(46.2,2.4,7,1.7,F,1)+wavy(45.6,2,11,3.1,F,.9)+around(46.3,8,(x,y)=>dot(x,y,1.7,F),.3)
+      +dot(50,50,31.6,T2)+dot(50,50,15,T1)+ring(50,50,15,F,.7)
+      +radial(18.2,22.4,22,A,.75)+around(16.8,22,(x,y)=>dot(x,y,1.3,A))
+      +radial(34.5,37,36,A,.7)+radial(40.1,37.6,44,A,.7)+around(33.2,36,(x,y)=>dot(x,y,1.3,A))+around(41.5,44,(x,y)=>dot(x,y,1.3,A))}},
+  clean:{n:"Clean",d:"Layers kept, detail cut: three rings of surfactant heads, the shell as a tint, the network as one line.",
+    s:(I)=>{const{F,A,T1,T2}=I;return wavy(46.5,1.8,8,.4,F,1.8)+around(46.5,6,(x,y)=>dot(x,y,2.5,F),.25)+dot(50,50,30.5,T2)
+      +around(40.5,30,(x,y)=>dot(x,y,2.2,A))+around(34.5,26,(x,y)=>dot(x,y,2,A),.12)+around(19.5,16,(x,y)=>dot(x,y,1.9,A))+dot(50,50,13.5,T1)+ring(50,50,13.5,F,2.2)}},
+  minimal:{n:"Minimal",d:"Five concentric bands. Reads at small sizes; still the same order of layers.",
+    s:(I)=>{const{F,A}=I;return wavy(47,1.4,8,0,F,2.2)+ring(50,50,39.5,A,3.2)+ring(50,50,34,A,3.2)+ring(50,50,24.5,F,8.5)+ring(50,50,15.5,A,3)+dot(50,50,9.5,F)}},
+  cutaway:{n:"Half-round cutaway",d:"The sphere on the right, the cross-section on the left: what an aphron looks like and what is inside it.",
+    s:(I,uid)=>{const{F,A,T1,T2}=I;return `<defs><clipPath id="L${uid}"><rect x="0" y="0" width="50" height="100"/></clipPath><clipPath id="R${uid}"><rect x="50" y="0" width="50" height="100"/></clipPath></defs>`
+      +wavy(47,1.6,8,.4,F,1.6)
+      +`<g clip-path="url(#R${uid})">${dot(50,50,42,T2)}${ring(50,50,42,F,2.2)}<path d="M58 14 A37 37 0 0 1 84 36" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></g>`
+      +`<g clip-path="url(#L${uid})">${dot(50,50,42,"#fff")}${ring(50,50,42,F,2.2)}${dot(50,50,30.5,T2)}${around(38.5,30,(x,y)=>dot(x,y,2.1,A))}${around(33,26,(x,y)=>dot(x,y,1.9,A),.12)}${around(19.5,16,(x,y)=>dot(x,y,1.8,A))}${dot(50,50,13.5,T1)}${ring(50,50,13.5,F,2)}</g>`
+      +`<path d="M50 6 V94" stroke="${F}" stroke-width="1.4"/>`}},
+  mono:{n:"Monoline",d:"One ink, strokes only. For engraving, embroidery or a single-color stamp.",
+    s:(I)=>{const F=I.F;return wavy(46.5,1.8,8,.4,F,1.8)+ring(50,50,40.5,F,2.8,`stroke-dasharray="0 5.2" stroke-linecap="round"`)+ring(50,50,34.5,F,2.6,`stroke-dasharray="0 4.8" stroke-linecap="round"`)
+      +ring(50,50,30,F,1.4)+ring(50,50,22,F,1.4)+ring(50,50,18.5,F,2.4,`stroke-dasharray="0 4.2" stroke-linecap="round"`)+ring(50,50,12,F,2.6)}},
+  solid:{n:"Solid stamp",d:"Filled disc with the layers knocked out in white. Built for favicons and tiny sizes.",
+    s:(I)=>{const{F,A}=I;return dot(50,50,47,F)+ring(50,50,40,"#fff",3,`stroke-dasharray="0 5.6" stroke-linecap="round"`)+ring(50,50,34,"#fff",3,`stroke-dasharray="0 5.2" stroke-linecap="round"`)
+      +ring(50,50,26,"#fff",1.4)+ring(50,50,19,"#fff",2.6,`stroke-dasharray="0 4.4" stroke-linecap="round"`)+dot(50,50,11,A)}}
+};
+
+/* ---------- lateral marks ---------- */
+const P="M24 6 V50 Q24 80 54 80 H94";
+const rise=(A,cols)=>cols.map(c=>c.map(b=>dot(b[0],b[1],b[2],A)).join("")).join("");
+const RISE=[[[60,68,2.2],[63,58,3.2],[59,45,4.4]],[[76,67,2.6],[73,55,3.6]],[[90,68,2.2],[92,59,3],[88,48,4.1],[91,33,5.3]],[[36,46,2.2],[40,36,3.2],[37,23,4.4],[42,8,5.4]]];
+const LATERAL={
+  inpipe:{n:"In the pipe",d:"The #059 path with aphrons inside it.",s:(I)=>`<path d="${P}" fill="none" stroke="${I.F}" stroke-width="14" stroke-linecap="round"/>`+[[24,18],[24,36],[30,64],[62,80],[78,80]].map(p=>dot(p[0],p[1],3.3,I.A)).join("")},
+  rising:{n:"Rising",d:"Aphrons lift off the horizontal and vertical sections, growing as they rise.",s:(I)=>`<path d="${P}" fill="none" stroke="${I.F}" stroke-width="12" stroke-linecap="round"/>`+rise(I.A,RISE)},
+  risingAph:{n:"Rising, aphron at the top",d:"As Rising, with the top bubble of each stream drawn as a small aphron: shell ring around a core.",s:(I)=>`<path d="${P}" fill="none" stroke="${I.F}" stroke-width="12" stroke-linecap="round"/>`+rise(I.A,RISE.map(c=>c.slice(0,-1)))
+      +RISE.map(c=>{const b=c[c.length-1],r=b[2]+1.2;return ring(b[0],b[1],r-.9,I.A,1.8)+dot(b[0],b[1],r*.42,I.F)}).join("")},
+  badge:{n:"Badge",d:"The #059 badge, white path on a solid square, aphrons rising in the accent.",s:(I)=>`<rect x="0" y="0" width="100" height="100" rx="22" fill="${I.F}"/><path d="M30 16 V50 Q30 74 54 74 H86" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round"/>`
+      +rise(I.A===I.F?"#fff":I.A,[[[58,61,2.3],[61,51,3.2],[58,39,4.2]],[[72,61,2.3],[75,51,3.2],[72,39,4.2]],[[45,38,2.3],[48,28,3.2],[45,16,4.2]]])},
+  pipe:{n:"Open pipe",d:"The well as a pipe, aphrons inside and lifting out of the toe.",s:(I)=>`<path d="${P}" fill="none" stroke="${I.F}" stroke-width="16" stroke-linecap="round"/><path d="${P}" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>`
+      +[[24,20],[24,38],[40,76],[60,80],[76,80]].map(p=>dot(p[0],p[1],2.4,I.A)).join("")+dot(100,70,3,I.A)+dot(104,58,4,I.A)+dot(100,44,5.2,I.A)},
+  monoline:{n:"Monoline",d:"One weight, one ink; bubbles as rings.",s:(I)=>`<path d="${P}" fill="none" stroke="${I.F}" stroke-width="6" stroke-linecap="round"/>`+RISE.map(c=>c.map(b=>ring(b[0],b[1],b[2],I.F,1.8)).join("")).join("")}
+};
+
+/* ---------- typefaces near Michroma and Google Sans ---------- */
+const FONTS=[
+  {f:"Michroma",w:400,lbl:"Michroma (W444)"},
+  {f:"Google Sans Flex",w:600,st:"expanded",lbl:"Google Sans Flex · wide 600"},
+  {f:"Google Sans Flex",w:500,st:"expanded",lbl:"Google Sans Flex · wide 500"},
+  {f:"Google Sans Flex",w:700,st:"expanded",lbl:"Google Sans Flex · wide 700"},
+  {f:"Google Sans",w:500,lbl:"Google Sans 500"},
+  {f:"Google Sans Flex",w:700,lbl:"Google Sans Flex 700"},
+  {f:"Lexend Exa",w:500,lbl:"Lexend Exa"},
+  {f:"Lexend Giga",w:400,lbl:"Lexend Giga"},
+  {f:"Krona One",w:400,lbl:"Krona One"},
+  {f:"Syncopate",w:700,lbl:"Syncopate"},
+  {f:"Archivo",w:700,st:"expanded",lbl:"Archivo Expanded"},
+  {f:"Saira",w:600,st:"expanded",lbl:"Saira Expanded"},
+  {f:"Unbounded",w:500,lbl:"Unbounded"},
+  {f:"Sora",w:600,lbl:"Sora"},
+  {f:"Red Hat Display",w:700,lbl:"Red Hat Display"},
+  {f:"Tomorrow",w:500,lbl:"Tomorrow"},
+  {f:"Exo 2",w:600,lbl:"Exo 2"},
+  {f:"Orbitron",w:600,lbl:"Orbitron"}
+];
+const cssFont=f=>`${f.w} ${f.st||"normal"} 100px "${f.f}"`;
+const cv=document.createElement("canvas"),cx=cv.getContext("2d");
+function setFont(f){cx.font=cssFont(f);try{cx.fontStretch=f.st||"normal"}catch(e){}}
+function measure(f,s){setFont(f);const m=cx.measureText(s);setFont(f);const H=cx.measureText("H");return{w:m.width,cap:H.actualBoundingBoxAscent}}
+
+/* ---------- lockup builder ---------- */
+function markSvg(kind,I,uid){if(kind==="none")return "";if(APHRON[kind])return APHRON[kind].s(I,uid);return LATERAL[kind].s(I,uid)}
+function lockup(o){
+  const {font:f,slant,text,ink:I,mark,place,uid}=o,m=measure(f,text),cap=m.cap,W=m.w,sk=slant?.2126:0;
+  const ff=`font-family="'${f.f}'" font-weight="${f.w}"${f.st?` font-stretch="${f.st}"`:""}`;
+  let g=`<g transform="skewX(${slant?-12:0})"><text x="0" y="0" ${ff} font-size="100" fill="${I.F}">${text}</text></g>`;
+  if(mark!=="none"){
+    const sc=o.scale||(place==="super"?.86:place==="left"?1.7:1.6),s=cap*sc;let mx,my;
+    if(place==="right"){mx=W+cap*.34+sk*cap*.55;my=-cap/2-s/2}
+    else if(place==="super"){mx=W+cap*.1+sk*cap;my=-cap-s*.3}
+    else{mx=-cap*.32-s;my=-cap/2-s/2}
+    g+=`<g transform="translate(${N(mx)} ${N(my)}) scale(${N(s/100)})">${markSvg(mark,I,uid)}</g>`;
+  }
+  return g;
+}
+const wrapSvg=(inner,label)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="${label}"><g class="c">${inner}</g></svg>`;
+function fit(svg,pad=.04){try{const b=svg.querySelector("g.c").getBBox();if(!b.width)return;const p=Math.max(b.width,b.height)*pad;svg.setAttribute("viewBox",`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`)}catch(e){}}
+let uidN=0;const uid=()=>"u"+(uidN++);
+
+function tile(svg,title,right,onClick){const t=document.createElement("div");t.className="tile";t.tabIndex=0;t.innerHTML=`<div class="art">${svg}</div><div class="cap"><span><b>${title}</b></span><span>${right||""}</span></div>`;
+  if(onClick){t.addEventListener("click",()=>onClick(t));t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();onClick(t)}})}return t}
+
+/* ---------- section 1: anatomy + aphron set ---------- */
+function anatomy(){
+  const I=INKS.diagram,labels=[["1","Inner gas core",50,50,-1,"left",58],["2","Inner surfactant monolayer",50-17,50,-1,"left",92],["3","Viscous water shell",50-27,50-12,-1,"left",26],["4","Outer surfactant bilayer",50+37,50-14,1,"right",30],["5","Xanthan gum network",50+46,50+12,1,"right",78]];
+  const S=2.6,ox=360,oy=20;let g=`<g transform="translate(${ox} ${oy}) scale(${S})">${APHRON.full.s(I,"an")}</g>`;
+  labels.forEach(([n,t,x,y,side,anchor,ly])=>{const px=ox+x*S,py=oy+y*S,lx=side<0?250:640,ty=oy+ly*S;
+    g+=`<path d="M${N(px)} ${N(py)} L${N(side<0?lx+20:lx-20)} ${N(ty)} L${lx} ${N(ty)}" fill="none" stroke="#18191B" stroke-width="1"/>`+dot(px,py,3,"#18191B")
+      +`<text x="${side<0?lx-6:lx+6}" y="${N(ty+4)}" text-anchor="${side<0?"end":"start"}" font-family="'IBM Plex Mono',monospace" font-size="13" fill="#18191B"><tspan font-weight="600">${n}</tspan>  ${t}</text>`});
+  document.getElementById("anatomy").innerHTML=`<svg viewBox="0 0 1000 300" role="img" aria-label="Aphron cross-section with five labelled layers">${g}</svg>`;
+}
+function sec1(){const el=document.getElementById("g-aphron");Object.entries(APHRON).forEach(([k,a])=>{["petrol","graphite"].forEach(ik=>{el.appendChild(tile(wrapSvg(a.s(INKS[ik],uid()),a.n),a.n,ik==="petrol"?"W444 ink":"W452 ink"))})})}
+function sec2(){const el=document.getElementById("g-lateral");Object.entries(LATERAL).forEach(([k,a])=>{el.appendChild(tile(wrapSvg(a.s(INKS.petrol,uid()),a.n),a.n,"W444 ink"))})}
+const LOCKS=[["clean","right"],["minimal","right"],["cutaway","right"],["clean","super"],["solid","super"],["minimal","super"],["clean","left"],["cutaway","left"],["rising","left"],["badge","left"],["rising","right"],["risingAph","right"]];
+function sec3(){const el=document.getElementById("g-lockup");LOCKS.forEach(([mk,pl],i)=>{const ink=i%4===3?INKS.graphite:INKS.petrol,name=(APHRON[mk]||LATERAL[mk]).n;
+  el.appendChild(tile(wrapSvg(lockup({font:FONTS[0],slant:true,text:"LSR-VIS",ink,mark:mk,place:pl,uid:uid()}),"LSR-VIS lockup"),`${name}`,{right:"Right of name",super:"Superscript",left:"Left of name"}[pl]))})}
+
+/* ---------- section 4: font bench ---------- */
+const ST={mark:"clean",place:"right",slant:true,text:"LSR-VIS",ink:"petrol",font:0};
+try{Object.assign(ST,JSON.parse(localStorage.getItem("lsrv-r2")||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem("lsrv-r2",JSON.stringify(ST))}catch(e){}};
+function controls(){
+  const el=document.getElementById("controls");
+  const seg=(key,label,opts)=>{const d=document.createElement("div");d.className="ctl";d.innerHTML=`<span class="lbl">${label}</span><span class="seg">${opts.map(([v,t])=>`<button data-k="${key}" data-v="${v}" aria-pressed="${String(ST[key])===String(v)}">${t}</button>`).join("")}</span>`;el.appendChild(d)};
+  const d=document.createElement("div");d.className="ctl";d.innerHTML=`<label class="lbl" for="mk">Mark</label><select id="mk">${[...Object.entries(APHRON).map(([k,a])=>[k,"Aphron · "+a.n]),...Object.entries(LATERAL).map(([k,a])=>[k,"Lateral · "+a.n]),["none","No mark"]].map(([k,t])=>`<option value="${k}"${ST.mark===k?" selected":""}>${t}</option>`).join("")}</select>`;el.appendChild(d);
+  seg("place","Placement",[["right","Right"],["super","Superscript"],["left","Left"]]);
+  seg("slant","Slant",[["true","Slanted"],["false","Upright"]]);
+  seg("text","Case",[["LSR-VIS","LSR-VIS"],["LSR-Vis","LSR-Vis"]]);
+  const e=document.createElement("div");e.className="ctl";e.innerHTML=`<label class="lbl" for="ink">Ink</label><select id="ink">${Object.entries(INKS).map(([k,v])=>`<option value="${k}"${ST.ink===k?" selected":""}>${v.n}</option>`).join("")}</select>`;el.appendChild(e);
+  el.addEventListener("click",ev=>{const b=ev.target.closest("button[data-k]");if(!b)return;const k=b.dataset.k;ST[k]=k==="slant"?b.dataset.v==="true":b.dataset.v;el.querySelectorAll(`button[data-k="${k}"]`).forEach(x=>x.setAttribute("aria-pressed",x===b));save();bench()});
+  document.getElementById("mk").addEventListener("change",ev=>{ST.mark=ev.target.value;save();bench()});
+  document.getElementById("ink").addEventListener("change",ev=>{ST.ink=ev.target.value;save();bench()});
+}
+const optsFor=(fi,ink)=>({font:FONTS[fi],slant:ST.slant,text:ST.text,ink:ink||INKS[ST.ink],mark:ST.mark,place:ST.place});
+function bench(){
+  const el=document.getElementById("g-fonts");el.innerHTML="";
+  FONTS.forEach((f,i)=>{const t=tile(wrapSvg(lockup({...optsFor(i),uid:uid()}),f.lbl),f.lbl,i===0?"current":"",()=>{ST.font=i;save();bench()});if(i===ST.font)t.classList.add("sel");el.appendChild(t)});
+  el.querySelectorAll("svg").forEach(s=>fit(s));preview();
+}
+function preview(){
+  const i=ST.font,f=FONTS[i];document.getElementById("pvname").textContent=f.lbl+" · "+INKS[ST.ink].n;
+  document.getElementById("pv").innerHTML=wrapSvg(lockup({...optsFor(i),uid:uid()}),"Preview");
+  const I=INKS[ST.ink],dark={...I,F:"#FFFFFF",T1:"#3A4A50",T2:"#22282B"};
+  document.getElementById("pvdark").innerHTML=wrapSvg(lockup({...optsFor(i,dark),uid:uid()}),"On dark");
+  document.getElementById("pvsmall").innerHTML=wrapSvg(lockup({...optsFor(i),uid:uid()}),"Small");
+  document.querySelectorAll("#pv svg,#pvdark svg,#pvsmall svg").forEach(s=>fit(s));
+  document.getElementById("fb").hidden=true;document.getElementById("copy").textContent="Copy SVG";
+}
+document.getElementById("copy").onclick=()=>{
+  const s=document.querySelector("#pv svg").cloneNode(true);s.insertAdjacentHTML("afterbegin",`<rect x="-10000" y="-10000" width="20000" height="20000" fill="#fff"/>`);
+  const f=FONTS[ST.font],src=`<!-- LSR-Vis round 2 · font: ${f.f}${f.st?" ("+f.st+")":""} ${f.w} (Google Fonts) -->\n`+s.outerHTML,b=document.getElementById("copy");
+  const fallback=()=>{const ta=document.getElementById("fb");ta.value=src;ta.hidden=false;ta.select();b.textContent="Select and copy below"};
+  try{navigator.clipboard.writeText(src).then(()=>{b.textContent="Copied"},fallback)}catch(e){fallback()}
+};
+
+/* ---------- boot ---------- */
+anatomy();sec1();sec2();
+document.querySelectorAll("#g-aphron svg,#g-lateral svg").forEach(s=>fit(s,.03));
+controls();
+(async()=>{
+  try{await Promise.all(FONTS.map(f=>document.fonts.load(cssFont(f),"LSR-VISVis")))}catch(e){}
+  await document.fonts.ready;
+  document.getElementById("loading").hidden=true;
+  sec3();document.querySelectorAll("#g-lockup svg").forEach(s=>fit(s));
+  bench();
+})();
+</script>
+</body>
+</html>
