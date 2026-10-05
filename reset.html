@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LSR-Vis Reset Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Google+Sans+Flex:wdth,wght@125,500;125,600;125,700&family=Google+Sans:wght@400;500;700&family=Archivo:wdth,wght@125,700&family=Lexend+Exa:wght@500&family=Lexend+Giga:wght@400&family=Krona+One&family=Syncopate:wght@700&family=Saira:wdth,wght@125,600&family=Unbounded:wght@500&family=Sora:wght@600&family=Red+Hat+Display:wght@700&family=Exo+2:wght@700&family=Aldrich&family=Days+One&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a proof sheet. Quiet grey ground so 500 white tiles read as cards; brief, filter bar, dense grid; a detail sheet with in-use mockups. */
+:root{
+  --bg:#E9E9E5; --surface:#FFFFFF; --fg:#18191B; --muted:#62645F; --line:#D2D2CC; --accent:#D98E04;
+  --body:"Google Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#1A1B1A; --fg:#EDEDE8; --muted:#A1A39C; --line:#33352F; color-scheme:dark}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:28px 64px}
+.nav{font-family:var(--mono);font-size:12px;letter-spacing:.04em;margin-bottom:18px;display:flex;gap:18px;flex-wrap:wrap}
+.nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--fg)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px 32px}
+h1{font-weight:700;font-size:clamp(32px,5vw,54px);line-height:1;margin:6px 0 0;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+.lede{max-width:66ch;color:var(--muted);margin:12px 0 0;line-height:1.55}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;display:flex;gap:16px;flex-wrap:wrap}
+.meta b{color:var(--fg);font-weight:600}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:20px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.rules div{background:var(--surface);color:#18191B;border:1px solid var(--line);border-radius:6px;padding:14px 16px;font-size:14px;line-height:1.45}
+.rules b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6A6C66;margin-bottom:4px;font-weight:600}
+.marks{display:flex;flex-direction:column;gap:10px;padding-block:18px 6px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px}
+.mk{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:#18191B;font:inherit}
+.mk svg{width:54px;height:54px;overflow:visible}
+.mk span{font-family:var(--mono);font-size:10px;line-height:1.25;text-align:center;color:#4A4C47}
+.mk[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-block:14px;position:sticky;top:0;background:var(--bg);z-index:5}
+.lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:2px}
+.chip,select{font:500 13px var(--body);border:1px solid var(--line);background:var(--surface);color:#18191B;padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;align-items:start}
+.tile{position:relative;display:flex;flex-direction:column;border-radius:4px;overflow:hidden;cursor:pointer;background:#fff;border:1px solid var(--line)}
+.art{position:relative;aspect-ratio:16/10;background:#fff}
+.art svg{position:absolute;left:11%;top:15%;width:78%;height:70%;overflow:visible}
+.cap{display:flex;justify-content:space-between;gap:8px;padding:8px 11px;font-family:var(--mono);font-size:11px;color:#6A6C66;border-top:1px solid #ECECE8;background:#fff}
+.cap b{color:#18191B;font-weight:600}
+.cap span:first-child{white-space:nowrap;flex:none}
+.cap span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;border:1px solid #E2E2DC;background:#fff;color:#9A9C95;font-size:14px;line-height:26px;cursor:pointer;opacity:0;transition:opacity .15s}
+.tile:hover .star,.star.on{opacity:1}
+.star.on{background:#F2C14E;border-color:#F2C14E;color:#18191B}
+@media (hover:none){.star{opacity:1}}
+.empty,.loading{padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px}
+[hidden]{display:none!important}
+dialog{border:0;padding:0;border-radius:8px;max-width:min(1100px,calc(100vw - 32px));width:100%;max-height:92vh;overflow:auto;background:#fff;color:#18191B}
+dialog::backdrop{background:rgba(10,10,10,.55)}
+.dl{display:grid;grid-template-columns:1.6fr 1fr}
+@media (max-width:760px){.dl{grid-template-columns:1fr}}
+.big{position:relative;min-height:320px;background:#fff;border-right:1px solid #ECECE8}
+.big svg{position:absolute;left:10%;top:14%;width:80%;height:72%}
+.side{padding:22px;display:flex;flex-direction:column;gap:13px;min-width:0;background:#FAFAF8}
+.side h2{font-size:25px;margin:0;line-height:1.1;font-weight:700}
+.side p{margin:0;color:#5D5F5A;line-height:1.5;font-size:14px}
+.side .meta{color:#6A6C66}.side .meta b{color:#18191B}
+dl.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-family:var(--mono);font-size:12px}
+dl.spec dt{color:#6A6C66;text-transform:uppercase;letter-spacing:.06em}
+dl.spec dd{margin:0}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.minis figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.minis div{position:relative;aspect-ratio:16/10;border-radius:4px;border:1px solid #E2E2DC;background:#fff}
+.minis svg{position:absolute;left:10%;top:16%;width:80%;height:68%}
+.minis div.sm svg{left:31%;width:38%;top:34%;height:32%}
+.minis figcaption{font-family:var(--mono);font-size:10px;color:#6A6C66;text-align:center}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn{font:500 13px var(--body);padding:9px 14px;border-radius:6px;border:1px solid #D8D8D2;background:#fff;color:#18191B;cursor:pointer}
+.btn.pri{background:#18191B;color:#fff;border-color:#18191B}
+textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
+.use{padding:18px 22px 22px;border-top:1px solid #ECECE8;display:flex;flex-direction:column;gap:10px}
+.use .eyebrow{color:#6A6C66}
+.usegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.usegrid{grid-template-columns:1fr}}
+.mock{border:1px solid #E2E2DC;border-radius:6px;overflow:hidden}
+.mock svg{display:block;width:100%;height:auto}
+#scratch{position:absolute;left:-9999px;top:0;width:800px;height:400px;visibility:hidden}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:letter;margin:0.4in}
+@media print{
+  :root{--bg:#fff;--fg:#18191B;--muted:#555;--line:#ccc;color-scheme:light}
+  html,body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .nav,.bar,.star,dialog,#empty{display:none!important}
+  h1{font-size:28px}.lede{font-size:10.5px}.rules div{font-size:10px;padding:8px 10px}.rules{padding-bottom:10px;margin-top:10px}
+  .mgrid{grid-template-columns:repeat(9,1fr);gap:5px}.mk{padding:6px 3px 4px;gap:4px;break-inside:avoid}.mk svg{width:30px;height:30px}.mk span{font-size:6.5px}
+  .grid{grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .tile{break-inside:avoid;border-color:#ddd}
+  .cap{font-size:7.5px;padding:4px 7px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><a href="round8.html">← Round 8</a><a href="wordmarks.html">One-piece wordmarks</a><a href="white.html">White series</a><a href="index.html">First 100</a></div>
+  <div class="eyebrow">Reset · a fresh 500 from what you have liked so far</div>
+  <header>
+    <div>
+      <h1>LSR-Vis <span>Reset series</span></h1>
+      <p class="lede">Five hundred new logos built only from what has worked: a clean, wide wordmark, mostly in italics, with one small, clear mark. Twenty-five marks, twenty versions of each. Star the ones you like, then use Copy shortlist to send me the codes. Click any logo to see it on a truck door, a field ticket, a hard hat and as an app icon.</p>
+    </div>
+    <div class="meta"><span><b>500</b> logos</span><span><b>25</b> marks</span><span><b>4</b> layouts</span><span><b>18</b> typefaces</span><span><b>8</b> inks</span></div>
+  </header>
+  <div class="rules">
+    <div><b>Kept from W444</b>Michroma and the wide faces near it, set in italics. A small mark at the top right of the name. About a third of the set is in Michroma itself.</div>
+    <div><b>Kept from W452</b>A bubble beside the name, now drawn as a true aphron: round, every layer centered, as in the cross-section.</div>
+    <div><b>Kept from #059</b>The well path with aphrons rising off both the vertical and the horizontal sections, alone and as a badge.</div>
+    <div><b>Left out</b>The aphron as the dot of the i, the L drawn as a well, and the lateral running under the name.</div>
+  </div>
+
+  <section class="marks">
+    <div class="eyebrow">The 25 marks · click one to see only its 20 versions</div>
+    <div class="mgrid" id="mgrid"></div>
+  </section>
+
+  <div class="bar" role="toolbar" aria-label="Filter logos">
+    <span class="lbl">Family</span>
+    <span id="fams" style="display:contents"></span>
+    <select id="fMark" aria-label="Mark"><option value="all">All marks</option></select>
+    <select id="fLay" aria-label="Layout"><option value="all">All layouts</option></select>
+    <select id="fType" aria-label="Typeface"><option value="all">All typefaces</option><option value="mich">Michroma</option><option value="gs">Google Sans</option><option value="other">Other wide faces</option></select>
+    <button class="chip" id="fItal" aria-pressed="false">Italic only</button>
+    <span class="spacer"></span>
+    <span class="count" id="count"></span>
+    <button class="chip" id="favs" aria-pressed="false">★ Shortlist <span id="favn">0</span></button>
+    <button class="chip" id="copyFav">Copy shortlist</button>
+    <button class="chip" id="print">Print</button>
+  </div>
+  <textarea class="fallback" id="favfb" hidden readonly aria-label="Shortlist codes"></textarea>
+
+  <p class="loading" id="loading">Setting 500 logos in 18 typefaces…</p>
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="empty" hidden>Nothing here yet. Hover a tile and tap the star to shortlist it.</p>
+</div>
+
+<dialog id="dlg">
+  <div class="dl">
+    <div class="big" id="big"></div>
+    <div class="side">
+      <div>
+        <div class="meta" id="dnum"></div>
+        <h2 id="dname"></h2>
+      </div>
+      <p id="ddesc"></p>
+      <dl class="spec" id="dspec"></dl>
+      <div class="minis" id="minis"></div>
+      <div class="acts">
+        <button class="btn pri" id="copy">Copy SVG</button>
+        <button class="btn" id="dstar">☆ Shortlist</button>
+        <button class="btn" id="prev" aria-label="Previous logo">←</button>
+        <button class="btn" id="next" aria-label="Next logo">→</button>
+        <button class="btn" id="close">Close</button>
+      </div>
+      <textarea class="fallback" id="fb" hidden readonly aria-label="SVG source"></textarea>
+    </div>
+  </div>
+  <div class="use"><div class="eyebrow">In use</div><div class="usegrid" id="use"></div></div>
+</dialog>
+<svg id="scratch" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<script>
+/* ---------- helpers ---------- */
+const N=v=>Math.round(v*100)/100;
+const dot=(x,y,r,f)=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="${f}"/>`;
+const ring=(x,y,r,s,w,extra="")=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="none" stroke="${s}" stroke-width="${N(w)}" ${extra}/>`;
+const DOTS=d=>`stroke-dasharray="0 ${d}" stroke-linecap="round"`;
+const around=(r,n,fn,ph=0)=>{let g="";for(let i=0;i<n;i++){const a=ph+i*2*Math.PI/n;g+=fn(50+r*Math.cos(a),50+r*Math.sin(a),a,i)}return g};
+const wavy=(r,amp,waves,ph,col,w)=>{let d="";for(let i=0;i<=180;i++){const a=i/180*2*Math.PI,rr=r+amp*Math.sin(waves*a+ph);d+=(i?"L":"M")+N(50+rr*Math.cos(a))+" "+N(50+rr*Math.sin(a))}return `<path d="${d}Z" fill="none" stroke="${col}" stroke-width="${w}" stroke-linejoin="round"/>`};
+const rng=seed=>{let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
+const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>{const A=hx(a),B=hx(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")};
+/* the aphron at any position and size: always concentric */
+const aBands=(x,y,r,F,A)=>ring(x,y,r*.92,F,r*.16)+ring(x,y,r*.6,A,r*.22)+dot(x,y,r*.27,F);
+const aShell=(x,y,r,F,A)=>ring(x,y,r*.79,A,r*.42)+dot(x,y,r*.33,F);
+
+/* ---------- inks (all on white) ---------- */
+const INKS=[
+  {n:"Petrol & amber",F:"#0B3C49",A:"#D98E04",wt:30},
+  {n:"Graphite & red",F:"#2B2D31",A:"#D62828",wt:14},
+  {n:"Navy & teal",F:"#0E2A47",A:"#0F8B8D",wt:10},
+  {n:"Black & ember",F:"#111111",A:"#E4572E",wt:10},
+  {n:"Midnight & mint",F:"#0B2545",A:"#13B494",wt:10},
+  {n:"Forest & olive",F:"#1F3D2B",A:"#7A9A01",wt:9},
+  {n:"Slate & orange",F:"#37474F",A:"#FF6D00",wt:9},
+  {n:"Black, one color",F:"#111111",A:"#111111",wt:8}
+].map(i=>({...i,B:"#FFFFFF",T1:mix(i.F,"#FFFFFF",.78),T2:mix(i.F,"#FFFFFF",.9)}));
+const inkDark=I=>({...I,F:"#FFFFFF",A:I.A===I.F?"#FFFFFF":I.A,B:I.F,T1:mix(I.F,"#FFFFFF",.3),T2:mix(I.F,"#FFFFFF",.16)});
+
+/* ---------- typefaces: Michroma, Google Sans, and wide faces near them ---------- */
+const FONTS=[
+  {f:"Michroma",w:400,lbl:"Michroma",sh:"Michroma",g:"mich",light:1},
+  {f:"Google Sans Flex",w:600,st:"expanded",lbl:"Google Sans Flex, wide, 600",sh:"GS Flex wide 600",g:"gs"},
+  {f:"Google Sans Flex",w:700,st:"expanded",lbl:"Google Sans Flex, wide, 700",sh:"GS Flex wide 700",g:"gs"},
+  {f:"Google Sans Flex",w:500,st:"expanded",lbl:"Google Sans Flex, wide, 500",sh:"GS Flex wide 500",g:"gs",light:1},
+  {f:"Google Sans",w:500,lbl:"Google Sans 500",sh:"Google Sans 500",g:"gs"},
+  {f:"Google Sans",w:700,lbl:"Google Sans 700",sh:"Google Sans 700",g:"gs"},
+  {f:"Archivo",w:700,st:"expanded",lbl:"Archivo Expanded",sh:"Archivo Exp.",g:"other"},
+  {f:"Lexend Exa",w:500,lbl:"Lexend Exa",sh:"Lexend Exa",g:"other"},
+  {f:"Lexend Giga",w:400,lbl:"Lexend Giga",sh:"Lexend Giga",g:"other"},
+  {f:"Krona One",w:400,lbl:"Krona One",sh:"Krona One",g:"other"},
+  {f:"Syncopate",w:700,lbl:"Syncopate",sh:"Syncopate",g:"other",caps:1},
+  {f:"Saira",w:600,st:"expanded",lbl:"Saira Expanded",sh:"Saira Exp.",g:"other"},
+  {f:"Unbounded",w:500,lbl:"Unbounded",sh:"Unbounded",g:"other"},
+  {f:"Sora",w:600,lbl:"Sora",sh:"Sora",g:"other"},
+  {f:"Red Hat Display",w:700,lbl:"Red Hat Display",sh:"Red Hat Display",g:"other"},
+  {f:"Exo 2",w:700,lbl:"Exo 2",sh:"Exo 2",g:"other"},
+  {f:"Aldrich",w:400,lbl:"Aldrich",sh:"Aldrich",g:"other"},
+  {f:"Days One",w:400,lbl:"Days One",sh:"Days One",g:"other"}
+];
+const cssFont=f=>`${f.w} ${f.st||"normal"} 100px "${f.f}"`;
+const cv=document.createElement("canvas"),cx=cv.getContext("2d");
+const CAP=new Map();
+function cap(fi){if(!CAP.has(fi)){cx.font=cssFont(FONTS[fi]);CAP.set(fi,cx.measureText("H").actualBoundingBoxAscent)}return CAP.get(fi)}
+function width(fi,s,ls){cx.font=cssFont(FONTS[fi]);return cx.measureText(s).width+ls*(s.length-1)}
+
+/* ---------- 25 marks. Each draws in a 100×100 box. I = {F ink, A accent, B ground, T1/T2 tints}; k = variation ---------- */
+const P_LAT="M24 6 V50 Q24 80 54 80 H94";
+const RISE=[[[60,68,2.2],[63,58,3.2],[59,45,4.4]],[[76,67,2.6],[73,55,3.6]],[[90,68,2.2],[92,59,3],[88,48,4.1],[91,33,5.3]],[[36,46,2.2],[40,36,3.2],[37,23,4.4],[42,8,5.4]]];
+const DROP="M50 3 C66 30 84 46 84 64 A34 34 0 0 1 16 64 C16 46 34 30 50 3 Z";
+const drip=(x,w,l,A,B)=>`<path d="M${N(x-w)} 18 C${N(x-w)} ${N(38+l*.4)} ${N(x-w*.5)} ${N(44+l*.6)} ${N(x-w*.5)} ${N(60+l)} A${N(w*.5)} ${N(w*.5)} 0 0 0 ${N(x+w*.5)} ${N(60+l)} C${N(x+w*.5)} ${N(44+l*.6)} ${N(x+w)} ${N(38+l*.4)} ${N(x+w)} 18 Z" fill="${A}"/>`+dot(x,60+l,w*.2,B);
+const MARKS=[
+ {id:"bands",n:"Three bands",fam:"Aphron",sm:1,d:"The aphron reduced to three rings: gas core, viscous shell and outer surfactant layer.",
+  s:(I,k)=>k%3===0?aBands(50,50,48,I.F,I.A):k%3===1?ring(50,50,45,I.F,5)+ring(50,50,31,I.A,9)+dot(50,50,17,I.F):ring(50,50,43,I.A,9)+ring(50,50,27,I.F,9)+dot(50,50,11,I.A)},
+ {id:"shell",n:"Core and shell",fam:"Aphron",sm:1,d:"Two parts only: the gas core and the thick shell around it.",
+  s:(I,k)=>k%3===0?aShell(50,50,48,I.F,I.A):k%3===1?ring(50,50,38,I.F,19)+dot(50,50,15,I.A):ring(50,50,41,I.A,13)+ring(50,50,24,I.F,4)+dot(50,50,11,I.F)},
+ {id:"surf",n:"Surfactant ring",fam:"Aphron",sm:1,d:"Core and film, with the outer surfactant layer shown as a ring of dots.",
+  s:(I,k)=>{const n=[14,18,12][k%3],rr=[5.2,4.2,6][k%3];return around(48-rr,n,(x,y)=>dot(x,y,rr,I.A))+ring(50,50,26,I.F,6)+dot(50,50,12,I.F)}},
+ {id:"wheel",big:1,n:"Surfactant layer",fam:"Aphron",d:"Surfactant molecules standing around the core, heads in and tails out, as in the cross-section.",
+  s:(I,k)=>{const n=[12,16,10][k%3],hr=n>12?3.2:4;return ring(50,50,45.5,I.F,5)+around(20,n,(x,y,a)=>`<path d="M${N(50+25*Math.cos(a))} ${N(50+25*Math.sin(a))} L${N(50+38*Math.cos(a))} ${N(50+38*Math.sin(a))}" stroke="${I.A}" stroke-width="3" stroke-linecap="round"/>`+dot(x,y,hr,I.A))+dot(50,50,10,I.F)}},
+ {id:"clean",big:1,n:"Full cross-section",fam:"Aphron",d:"Every layer from the diagram, simplified: core, inner layer, shell, outer double layer and the polymer network around it.",
+  s:(I,k)=>(k%2?ring(50,50,46.5,I.F,1.8):wavy(46.5,1.8,8,.4,I.F,1.8)+around(46.5,6,(x,y)=>dot(x,y,2.5,I.F),.25))+dot(50,50,30.5,I.T2)+around(40.5,30,(x,y)=>dot(x,y,2.2,I.A))+around(34.5,26,(x,y)=>dot(x,y,2,I.A),.12)+around(19.5,16,(x,y)=>dot(x,y,1.9,I.A))+dot(50,50,13.5,I.T1)+ring(50,50,13.5,I.F,2.2)},
+ {id:"cutaway",big:1,n:"Half cutaway",fam:"Aphron",d:"The sphere on one side and its cross-section on the other.",
+  s:(I,k,u)=>{const g=`<defs><clipPath id="L${u}"><rect x="0" y="0" width="50" height="100"/></clipPath><clipPath id="R${u}"><rect x="50" y="0" width="50" height="100"/></clipPath></defs>`+wavy(47,1.6,8,.4,I.F,1.6)
+    +`<g clip-path="url(#R${u})">${dot(50,50,42,I.T2)}${ring(50,50,42,I.F,2.2)}<path d="M58 14 A37 37 0 0 1 84 36" fill="none" stroke="${I.B}" stroke-width="3.5" stroke-linecap="round"/></g>`
+    +`<g clip-path="url(#L${u})">${dot(50,50,42,I.B)}${ring(50,50,42,I.F,2.2)}${dot(50,50,30.5,I.T2)}${around(38.5,30,(x,y)=>dot(x,y,2.1,I.A))}${around(33,26,(x,y)=>dot(x,y,1.9,I.A),.12)}${around(19.5,16,(x,y)=>dot(x,y,1.8,I.A))}${dot(50,50,13.5,I.T1)}${ring(50,50,13.5,I.F,2)}</g><path d="M50 6 V94" stroke="${I.F}" stroke-width="1.4"/>`;
+   return k%2?`<g transform="translate(100 0) scale(-1 1)">${g}</g>`:g}},
+ {id:"quarter",n:"Quarter cutaway",fam:"Aphron",sm:1,d:"A solid sphere with one quarter cut away to show the layers inside.",
+  s:(I,k)=>`<g transform="rotate(${[0,90,270][k%3]} 50 50)">`+dot(50,50,46,I.F)+`<path d="M50 50 V2 H98 V50 Z" fill="${I.B}"/><path d="M50 50 V6 A44 44 0 0 1 94 50 Z" fill="${I.T2}"/><path d="M50 5.5 A44.5 44.5 0 0 1 94.5 50" fill="none" stroke="${I.F}" stroke-width="3"/><path d="M50 13 A37 37 0 0 1 87 50" fill="none" stroke="${I.A}" stroke-width="6"/><path d="M50 30 A20 20 0 0 1 70 50" fill="none" stroke="${I.A}" stroke-width="5"/><path d="M50 50 V39 A11 11 0 0 1 61 50 Z" fill="${I.F}"/><path d="M50 4 V50 H96" fill="none" stroke="${I.B}" stroke-width="2.5"/></g>`},
+ {id:"solid",n:"Solid stamp",fam:"Aphron",sm:1,d:"A filled disc with the layers knocked out. Built to hold up at small sizes.",
+  s:(I,k)=>{const c=I.A===I.F?I.B:I.A;return k%2===0?dot(50,50,47,I.F)+ring(50,50,40,I.B,3,DOTS(5.6))+ring(50,50,34,I.B,3,DOTS(5.2))+ring(50,50,26,I.B,1.4)+ring(50,50,19,I.B,2.6,DOTS(4.4))+dot(50,50,11,c):dot(50,50,47,I.F)+ring(50,50,34,I.B,6)+ring(50,50,21,c,7)+dot(50,50,8,I.B)}},
+ {id:"mono",big:1,n:"Monoline",fam:"Aphron",d:"The cross-section in fine lines and dots.",
+  s:(I,k)=>wavy(46.5,1.8,8,.4,I.F,1.8)+ring(50,50,40.5,I.F,2.8,DOTS(5.2))+ring(50,50,34.5,I.F,2.6,DOTS(4.8))+ring(50,50,30,I.F,1.4)+ring(50,50,22,I.F,1.4)+ring(50,50,18.5,I.F,2.4,DOTS(4.2))+(k%2?dot(50,50,12,I.A):ring(50,50,12,I.F,2.6))},
+ {id:"network",big:1,n:"Polymer network",fam:"Aphron",d:"Core and shell wrapped in two braided strands: the xanthan network that holds the aphron.",
+  s:(I,k)=>{const wv=[7,9,6][k%3];return wavy(42,3.6,wv,0,I.F,3)+wavy(42,3.6,wv,Math.PI,I.F,3)+ring(50,50,25,I.A,9)+dot(50,50,11,I.F)}},
+ {id:"rising",big:1,n:"Lateral, rising",fam:"Lateral",d:"A horizontal well with aphrons lifting off the vertical and horizontal sections, growing as they rise. From #059.",
+  s:(I,k)=>`<path d="${P_LAT}" fill="none" stroke="${I.F}" stroke-width="${k%2?8:12}" stroke-linecap="round"/>`+RISE.map(c=>c.map(b=>dot(b[0],b[1],b[2],I.A)).join("")).join("")},
+ {id:"badge",big:1,n:"Lateral badge",fam:"Lateral",d:"The #059 badge: a white well path on a solid tile, with aphrons rising.",
+  s:(I,k)=>{const c=I.A===I.F?I.B:I.A;return `<rect width="100" height="100" rx="${[22,50,10][k%3]}" fill="${I.F}"/><path d="M30 18 V50 Q30 74 54 74 H84" fill="none" stroke="${I.B}" stroke-width="11" stroke-linecap="round"/>`+[[58,61,2.3],[61,52,3.2],[57,40,4.3],[73,60,2.6],[70,49,3.6],[84,60,2.2],[82,50,3],[84,38,4.1],[44,44,2.2],[47,34,3.1],[44,22,4.2]].map(b=>dot(b[0],b[1],b[2],c)).join("")}},
+ {id:"aphtop",big:1,n:"Lateral, aphrons on top",fam:"Lateral",d:"As Lateral rising, with the top bubble of each stream drawn as a small aphron.",
+  s:(I,k)=>`<path d="${P_LAT}" fill="none" stroke="${I.F}" stroke-width="12" stroke-linecap="round"/>`+RISE.map(c=>c.slice(0,-1).map(b=>dot(b[0],b[1],b[2],I.A)).join("")+(b=>ring(b[0],b[1],b[2]+.3,I.A,1.8)+dot(b[0],b[1],(b[2]+1.2)*.42,I.F))(c[c.length-1])).join("")},
+ {id:"latmono",big:1,n:"Lateral, monoline",fam:"Lateral",d:"A thin well path with the rising bubbles drawn as rings.",
+  s:(I,k)=>`<path d="${P_LAT}" fill="none" stroke="${I.F}" stroke-width="6" stroke-linecap="round"/>`+RISE.map(c=>c.map(b=>ring(b[0],b[1],b[2],k%2?I.A:I.F,1.8)).join("")).join("")},
+ {id:"toe",big:1,n:"Well to aphron",fam:"Lateral",d:"The well runs straight into an aphron.",
+  s:(I,k)=>k%2===0?`<path d="M20 6 V44 Q20 70 46 70 H56" fill="none" stroke="${I.F}" stroke-width="11" stroke-linecap="round"/>`+dot(76,70,24,I.B)+aBands(76,70,22,I.F,I.A):`<path d="M50 5 V56" stroke="${I.F}" stroke-width="11" stroke-linecap="round"/>`+dot(50,72,26,I.B)+aBands(50,72,24,I.F,I.A)},
+ {id:"drip",top:1,n:"Slow drip",fam:"Fluid",sm:1,d:"The W444 mark: fluid hanging from a bar instead of falling. Very high viscosity at rest.",
+  s:(I,k)=>`<rect x="4" y="4" width="92" height="16" rx="3" fill="${I.F}"/>`+(k%3===0?drip(32,13,8,I.A,I.B)+drip(70,16,3.2,I.A,I.B):k%3===1?drip(52,20,16,I.A,I.B)+dot(48,40,3,I.B):drip(24,10,4,I.A,I.B)+drip(52,13,18,I.A,I.B)+drip(78,10,9,I.A,I.B))},
+ {id:"drop",n:"Aphron drop",fam:"Fluid",sm:1,d:"A drop of fluid with an aphron inside it.",
+  s:(I,k)=>k%3===0?`<path d="${DROP}" fill="${I.F}"/>`+ring(50,64,20,I.B,5)+dot(50,64,9,I.A===I.F?I.B:I.A):k%3===1?`<path d="${DROP}" fill="none" stroke="${I.F}" stroke-width="6" stroke-linejoin="round"/>`+ring(50,64,17,I.A,7)+dot(50,64,6.5,I.F):`<path d="${DROP}" fill="${I.A}"/>`+ring(50,64,20,I.B,5)+dot(50,64,9,I.A===I.F?I.B:I.F)},
+ {id:"curve",big:1,n:"Shear curve",fam:"Fluid",d:"Viscosity against shear rate: high and flat at low shear, then falling. The low-shear-rate viscosity in the name.",
+  s:(I,k)=>{const ax=`<path d="M10 6 V90 H94" fill="none" stroke="${I.F}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>`;
+   if(k%3===0)return ax+`<path d="M24 26 H40 C58 26 60 72 92 78" fill="none" stroke="${I.A}" stroke-width="8" stroke-linecap="round"/>`;
+   if(k%3===1)return ax+[[25,26,7.5],[41,27,6.6],[52,36,5.8],[59,49,5],[66,61,4.3],[75,70,3.7],[85,75,3.1]].map(p=>dot(p[0],p[1],p[2],I.A)).join("");
+   return `<path d="M13 24 H40 C58 24 60 70 92 76 V88 H13 Z" fill="${I.A}"/>`+ax}},
+ {id:"column",big:1,n:"Rising stream",fam:"Fluid",d:"A stream of bubbles rising into a full aphron.",
+  s:(I,k)=>k%2===0?dot(50,93,3.5,I.A)+dot(45,80,5,I.A)+dot(54,66,7,I.A)+aBands(50,30,25,I.F,I.A):dot(12,90,3,I.A)+dot(24,80,4.5,I.A)+dot(38,67,6.5,I.A)+aBands(68,36,28,I.F,I.A)},
+ {id:"pore",big:1,n:"Pore bridge",fam:"Formation",d:"An aphron lodged between sand grains, sealing the pore.",
+  s:(I,k)=>k%2===0?[[17,17],[83,17],[17,83],[83,83]].map(p=>dot(p[0],p[1],21,I.F)).join("")+aShell(50,50,17,I.F,I.A)+[[50,13],[50,87],[13,50],[87,50]].map(p=>dot(p[0],p[1],6.5,I.A)).join("")
+   :[[50,20],[20,76],[80,76]].map(p=>dot(p[0],p[1],20,I.F)).join("")+aShell(50,57,11,I.F,I.A)+dot(50,81,5.5,I.A)+dot(35,48,5.5,I.A)+dot(65,48,5.5,I.A)},
+ {id:"seal",big:1,n:"Fracture seal",fam:"Formation",d:"Aphrons packed into a fracture between two blocks of rock.",
+  s:(I,k,u)=>{const r=rng(500+k*31),ys=[0,20,40,60,80,100],xs=ys.map((y,i)=>50+(i%2?1:-1)*(5+r()*9)),w=6.5;
+   const Lp=xs.map((x,i)=>`${N(x-w)},${ys[i]}`).join(" "),Rp=xs.map((x,i)=>`${N(x+w)},${ys[i]}`).reverse().join(" ");
+   let body=`<polygon points="0,0 ${Lp} 0,100" fill="${I.F}"/><polygon points="100,0 100,100 ${Rp}" fill="${I.F}"/>`;
+   for(let i=0;i<5;i++)body+=dot((xs[i]+xs[i+1])/2,ys[i]+10,w*.72,I.A);
+   return `<defs><clipPath id="c${u}">${k%2?`<circle cx="50" cy="50" r="48"/>`:`<rect x="2" y="2" width="96" height="96" rx="18"/>`}</clipPath></defs><g clip-path="url(#c${u})">${body}</g>`}},
+ {id:"pair",n:"Non-coalescing",fam:"Formation",sm:1,d:"Aphrons touching without merging. Their shells keep them apart.",
+  s:(I,k)=>k%3===0?aBands(32,50,30,I.F,I.A)+aShell(80,50,17,I.F,I.A):k%3===1?aShell(20,50,17,I.F,I.A)+aBands(68,50,30,I.F,I.A):aBands(24,50,22,I.F,I.A)+aShell(62,50,14.5,I.F,I.A)+ring(88.5,50,7.5,I.F,4)+dot(88.5,50,2.6,I.A)},
+ {id:"tile",n:"Aphron tile",fam:"Tile",sm:1,d:"The aphron knocked out of a solid tile, like an app icon.",
+  s:(I,k)=>{const alt=k%3===2&&I.A!==I.F;return `<rect width="100" height="100" rx="${k%3===1?50:22}" fill="${alt?I.A:I.F}"/>`+ring(50,50,31,I.B,7)+ring(50,50,19,alt?I.F:(I.A===I.F?I.B:I.A),I.A===I.F&&!alt?3:8)+dot(50,50,7,I.B)}},
+ {id:"roundel",big:1,n:"Lateral roundel",fam:"Tile",d:"The well path and its rising aphrons inside a ring.",
+  s:(I,k)=>{const solid=k%2===1,c=solid&&I.A===I.F?I.B:I.A;return (solid?dot(50,50,48,I.F):ring(50,50,45.5,I.F,5))+`<path d="M34 24 V50 Q34 68 52 68 H72" fill="none" stroke="${solid?I.B:I.F}" stroke-width="8" stroke-linecap="round"/>`+[[50,57,2.2],[53,48,3],[49,38,4],[64,57,2.4],[66,47,3.3],[43,44,2],[45,35,2.8],[43,25,3.6]].map(b=>dot(b[0],b[1],b[2],c)).join("")}},
+ {id:"cluster",big:1,n:"Cluster",fam:"Tile",d:"Three aphrons of different sizes.",
+  s:(I,k)=>{const g=aBands(36,60,32,I.F,I.A)+aShell(78,28,18,I.F,I.A)+ring(83,75,8.5,I.F,5)+dot(83,75,3,I.A);return k%2?`<g transform="translate(100 0) scale(-1 1)">${g}</g>`:g}}
+];
+const FAMS=["Aphron","Lateral","Fluid","Formation","Tile"];
+const LAYS={super:"Top right",right:"Beside",left:"Before",stack:"Above"};
+
+/* ---------- 500 logos: 25 marks × 20 versions, no two alike ---------- */
+const SEQ_SM=["super","right","left","super","stack","super","right","left","super","right","super","stack","left","super","right","super","left","stack","super","right"];
+const SEQ_LG=["right","left","stack","right","left","right","stack","left","right","left","right","stack","left","right","stack","left","right","left","stack","right"];
+const MS={super:[.62,.74,.86],right:[1.15,1.4,1.7],left:[1.4,1.7],stack:[1.7,2.1]},MSB={right:[1.7,2],left:[1.7,2,2.3],stack:[2.1,2.5]};
+const pickW=(r,arr)=>{let x=r()*arr.reduce((s,a)=>s+a.wt,0);for(let i=0;i<arr.length;i++){x-=arr[i].wt;if(x<0)return i}return arr.length-1};
+const LOGOS=[];
+function plan(){
+  const seen=new Set();
+  for(let j=0;j<20;j++)for(let m=0;m<MARKS.length;m++){
+    const M=MARKS[m],lay=(M.sm?SEQ_SM:SEQ_LG)[(j+m)%20];
+    for(let a=0;a<40;a++){
+      const r=rng(7919*(m+1)+j*104729+a*31337),font=((j+m)%3===0)?0:1+Math.floor(r()*17),f=FONTS[font];
+      const L={m,k:(j+(m>>1))%6,lay,font,slant:r()<.72?12:0,cs:(f.caps||r()<.62)?"upper":"mixed",ink:pickW(r,INKS),
+        sw:f.light?[0,0,0,1.6][Math.floor(r()*4)]:0,ls:[0,0,0,0,4,4,10][Math.floor(r()*7)],
+        st:(x=>x<.12?"hy":x<.2?"two":"plain")(r()),tag:r()<.15,ms:(S=>S[Math.floor(r()*S.length)])((M.big&&MSB[lay])||MS[lay])};
+      const key=JSON.stringify(L);if(seen.has(key))continue;seen.add(key);L.i=LOGOS.length;LOGOS.push(L);break;
+    }
+  }
+}
+const code=i=>"N"+String(i+1).padStart(3,"0");
+
+/* ---------- lockup ---------- */
+function wordSvg(L,I){
+  const f=FONTS[L.font],b=L.cs==="mixed"?"Vis":"VIS",sA=L.sw?` stroke="${I.A}"`:"";
+  const ff=`font-family="'${f.f}'" font-weight="${f.w}"${f.st?` font-stretch="${f.st}"`:""}${L.ls?` letter-spacing="${L.ls}"`:""}`;
+  const inner=L.st==="hy"?`LSR<tspan fill="${I.A}"${sA}>-</tspan>${b}`:L.st==="two"?`LSR-<tspan fill="${I.A}"${sA}>${b}</tspan>`:`LSR-${b}`;
+  return `<text x="0" y="0" ${ff} font-size="100" fill="${I.F}"${L.sw?` stroke="${I.F}" stroke-width="${L.sw}" stroke-linejoin="round"`:""}>${inner}</text>`;
+}
+function tagSvg(I,c,W){
+  const ts=c*.3,txt="APHRON FLUID SYSTEM";cx.font=`500 ${ts}px "Google Sans"`;
+  const w0=cx.measureText(txt).width,fitLs=(W-w0)/(txt.length-1),ls=fitLs>=ts*.08&&fitLs<=ts*.55?fitLs:ts*.3;
+  return `<text x="0" y="${N(c*.58)}" font-family="'Google Sans',sans-serif" font-weight="500" font-size="${N(ts)}" letter-spacing="${N(ls)}" fill="${I.A}">${txt}</text>`;
+}
+function build(L,u,inkO){
+  const I=inkO||INKS[L.ink],M=MARKS[L.m],c=cap(L.font),t=Math.tan(L.slant*Math.PI/180);
+  const W=width(L.font,L.cs==="mixed"?"LSR-Vis":"LSR-VIS",L.ls)+L.sw/2,s=c*L.ms;
+  let mx,my;
+  if(L.lay==="super"){my=-c-s*.03;mx=W+c*.1+s/2+t*(-my)}
+  else if(L.lay==="right"){my=-c/2;mx=W+c*.3+s/2+t*c*.5}
+  else if(L.lay==="left"){my=-c/2;mx=-c*.3-s/2+t*c*.5}
+  else{my=-c-c*.32-s/2;mx=W/2+t*c*.5}
+  if(M.top&&(L.lay==="right"||L.lay==="left")){const d=(-c+s*.46)-my;my+=d;mx+=t*(-d)}
+  return `<g transform="skewX(${-L.slant})">${wordSvg(L,I)}${L.tag?tagSvg(I,c,W):""}</g><g transform="translate(${N(mx-s/2)} ${N(my-s/2)}) scale(${Math.round(s*10)/1000})">${M.s(I,L.k,u)}</g>`;
+}
+const svgFor=(L,u,ink)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="LSR-Vis logo ${code(L.i)}"><g class="c">${build(L,u,ink)}</g></svg>`;
+function fit(svg,pad=.03){try{const b=svg.querySelector("g.c").getBBox();if(!b.width)return;const p=Math.max(b.width,b.height)*pad;svg.setAttribute("viewBox",`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`)}catch(e){}}
+
+/* ---------- in-use mockups ---------- */
+const scratch=document.getElementById("scratch");
+function tight(inner,pad=.02){scratch.innerHTML=`<g>${inner}</g>`;const b=scratch.firstChild.getBBox(),p=Math.max(b.width,b.height)*pad;scratch.innerHTML="";return{vb:`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`,w:b.width+2*p,h:b.height+2*p,inner}}
+const placeIn=(B,x,y,w,h,ax="mid",ay="mid")=>{const s=Math.min(w/B.w,h/B.h),W=B.w*s,H=B.h*s,X=ax==="start"?x:ax==="end"?x+w-W:x+(w-W)/2,Y=ay==="start"?y:ay==="end"?y+h-H:y+(h-H)/2;return `<svg x="${N(X)}" y="${N(Y)}" width="${N(W)}" height="${N(H)}" viewBox="${B.vb}">${B.inner}</svg>`};
+const GS=`font-family="'Google Sans',sans-serif"`,MONO=`font-family="'IBM Plex Mono',monospace"`;
+const mock=(g,label)=>`<svg viewBox="0 0 600 380" role="img" aria-label="${label}">${g}</svg>`;
+function mTruck(B){
+  return mock(`<rect width="600" height="380" fill="#D9DCDD"/><path d="M40 70 Q40 40 70 40 H470 Q520 40 545 90 L570 150 V340 H40 Z" fill="#FFFFFF" stroke="#BFC3C5" stroke-width="2"/><path d="M70 58 H455 Q492 58 512 98 L532 140 H70 Z" fill="#3B4247"/><path d="M90 70 H300 L280 128 H90 Z" fill="#525B61" opacity=".6"/><rect x="438" y="166" width="54" height="12" rx="6" fill="#C9CDCF"/>`+placeIn(B,120,196,360,124)+`<text x="20" y="368" ${MONO} font-size="11" fill="#5D5F5A">Truck door</text>`,"Truck door mockup");
+}
+function mTicket(B,I){
+  let g=`<rect width="600" height="380" fill="#F4F3EE"/><rect x="30" y="22" width="540" height="330" fill="#FFFFFF" stroke="#DDDCD5"/>`+placeIn(B,56,36,230,56,"start","mid");
+  g+=`<text x="544" y="60" text-anchor="end" ${MONO} font-size="11" font-weight="600" fill="#18191B" letter-spacing="1.5">FIELD TICKET</text><text x="544" y="76" text-anchor="end" ${MONO} font-size="11" fill="#6A6C66">No. 000000</text><line x1="56" y1="106" x2="544" y2="106" stroke="${I.F}" stroke-width="1.5"/>`;
+  [["Customer",56,132],["Lease / well",310,132],["County",56,160],["Date",310,160]].forEach(([t,x,y])=>{g+=`<text x="${x}" y="${y}" ${GS} font-size="11" fill="#6A6C66">${t}</text><line x1="${x+78}" y1="${y+2}" x2="${x+230}" y2="${y+2}" stroke="#CFCFC8"/>`});
+  g+=`<rect x="56" y="182" width="488" height="22" fill="#F1F0EA"/>`;[["Item",64],["Qty",380],["Unit",440],["Amount",500]].forEach(([t,x])=>{g+=`<text x="${x}" y="197" ${GS} font-size="10.5" font-weight="700" fill="#18191B">${t}</text>`});
+  ["LSR-Vis aphron fluid","Mixing and pump time","Field engineer"].forEach((t,i)=>{const y=224+i*26;g+=`<text x="64" y="${y}" ${GS} font-size="11" fill="#18191B">${t}</text><text x="380" y="${y}" ${GS} font-size="11" fill="#9A9B95">—</text><text x="440" y="${y}" ${GS} font-size="11" fill="#9A9B95">${["bbl","hr","day"][i]}</text><text x="500" y="${y}" ${GS} font-size="11" fill="#9A9B95">—</text><line x1="56" y1="${y+9}" x2="544" y2="${y+9}" stroke="#ECECE6"/>`});
+  g+=`<line x1="56" y1="322" x2="240" y2="322" stroke="#CFCFC8"/><text x="56" y="337" ${GS} font-size="10" fill="#6A6C66">Customer signature</text><line x1="360" y1="322" x2="544" y2="322" stroke="#CFCFC8"/><text x="360" y="337" ${GS} font-size="10" fill="#6A6C66">Field engineer</text><text x="20" y="372" ${MONO} font-size="11" fill="#5D5F5A">Field ticket</text>`;
+  return mock(g,"Field ticket mockup");
+}
+function mHat(Ic){
+  return mock(`<rect width="600" height="380" fill="#EEEDE7"/><g transform="translate(300 176) scale(1.32) translate(-200 -185)"><path d="M70 250 Q70 110 200 96 Q330 110 330 250 Z" fill="#FFFFFF" stroke="#CFCFC8" stroke-width="1.6"/><path d="M196 98 Q200 160 200 250" stroke="#E6E6E0" stroke-width="10" fill="none"/><path d="M40 252 Q200 230 360 252 Q366 268 352 274 Q200 258 48 274 Q34 268 40 252 Z" fill="#FFFFFF" stroke="#CFCFC8" stroke-width="1.6"/><circle cx="200" cy="184" r="40" fill="#FFFFFF" stroke="#E6E6E0"/>${placeIn(Ic,170,154,60,60)}</g><text x="20" y="368" ${MONO} font-size="11" fill="#5D5F5A">Hard hat sticker: the mark alone</text>`,"Hard hat mockup");
+}
+function mApp(IcR,Ic,Br,I){
+  let g=`<rect width="600" height="380" fill="#F4F3EE"/><rect x="40" y="30" width="130" height="130" rx="30" fill="${I.F}"/>`+placeIn(IcR,64,54,82,82)+`<text x="105" y="184" text-anchor="middle" ${GS} font-size="13" fill="#18191B">LSR-Vis</text>`;
+  g+=`<rect x="214" y="40" width="236" height="38" rx="9" fill="#FFFFFF" stroke="#DDDCD5"/>`+placeIn(Ic,226,50,18,18)+`<text x="254" y="64" ${GS} font-size="13" fill="#18191B">LSR-Vis · Aphron fluid…</text>`;
+  [[64,214],[32,304],[16,362]].forEach(([s,x])=>{g+=`<rect x="${x-5}" y="${166-s-5}" width="${s+10}" height="${s+10}" rx="6" fill="#FFFFFF" stroke="#E6E6E0"/>`+placeIn(Ic,x,166-s,s,s)+`<text x="${x+s/2}" y="190" text-anchor="middle" ${MONO} font-size="10" fill="#6A6C66">${s}px</text>`});
+  g+=`<rect x="0" y="212" width="600" height="168" fill="${I.F}"/>`+placeIn(Br,110,236,380,112)+`<text x="20" y="368" ${MONO} font-size="11" fill="#FFFFFF" opacity=".7">App icon, browser tab, on dark</text>`;
+  return mock(g,"App icon and dark background mockup");
+}
+
+/* ---------- page ---------- */
+let favs=new Set();
+try{favs=new Set(JSON.parse(localStorage.getItem("lsrv-reset-favs")||"[]"))}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem("lsrv-reset-favs",JSON.stringify([...favs]))}catch(e){};document.getElementById("favn").textContent=favs.size};
+const grid=document.getElementById("grid");
+const famsEl=document.getElementById("fams");
+["All",...FAMS].forEach(f=>{const b=document.createElement("button");b.className="chip";b.dataset.fam=f;b.textContent=f;b.setAttribute("aria-pressed",f==="All");famsEl.appendChild(b)});
+MARKS.forEach((m,i)=>{const o=document.createElement("option");o.value=i;o.textContent=m.n;document.getElementById("fMark").appendChild(o)});
+Object.entries(LAYS).forEach(([k,v])=>{const o=document.createElement("option");o.value=k;o.textContent=v;document.getElementById("fLay").appendChild(o)});
+const F={fam:"All",mark:"all",lay:"all",type:"all",ital:false,fav:false};
+const mgrid=document.getElementById("mgrid");
+MARKS.forEach((M,i)=>{const b=document.createElement("button");b.className="mk";b.dataset.m=i;b.setAttribute("aria-pressed","false");b.title=M.d;
+  b.innerHTML=`<svg viewBox="-3 -3 106 106" aria-hidden="true">${M.s(INKS[0],0,"x"+i)}</svg><span>${M.n}</span>`;mgrid.appendChild(b)});
+function setMark(v){F.mark=v;document.getElementById("fMark").value=v;mgrid.querySelectorAll(".mk").forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===String(v)));applyFilter()}
+mgrid.addEventListener("click",e=>{const b=e.target.closest(".mk");if(!b)return;setMark(F.mark===b.dataset.m?"all":b.dataset.m);document.querySelector(".bar").scrollIntoView({behavior:"smooth",block:"start"})});
+function applyFilter(){
+  let shown=0;
+  grid.querySelectorAll(".tile").forEach(t=>{const L=LOGOS[+t.dataset.i],ok=(F.fam==="All"||MARKS[L.m].fam===F.fam)&&(F.mark==="all"||L.m===+F.mark)&&(F.lay==="all"||L.lay===F.lay)&&(F.type==="all"||FONTS[L.font].g===F.type)&&(!F.ital||L.slant>0)&&(!F.fav||favs.has(L.i));t.hidden=!ok;if(ok)shown++});
+  document.getElementById("empty").hidden=shown>0||!LOGOS.length;document.getElementById("count").textContent=`${shown} shown`;
+}
+famsEl.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;F.fam=b.dataset.fam;famsEl.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));applyFilter()});
+document.getElementById("fMark").addEventListener("change",e=>setMark(e.target.value));
+document.getElementById("fLay").addEventListener("change",e=>{F.lay=e.target.value;applyFilter()});
+document.getElementById("fType").addEventListener("change",e=>{F.type=e.target.value;applyFilter()});
+const togg=(id,key)=>{const b=document.getElementById(id);b.addEventListener("click",()=>{F[key]=!F[key];b.setAttribute("aria-pressed",F[key]);applyFilter()})};
+togg("fItal","ital");togg("favs","fav");
+document.getElementById("print").addEventListener("click",()=>window.print());
+function copyText(btn,src,fbId,done){const fb=document.getElementById(fbId),fallback=()=>{fb.value=src;fb.hidden=false;fb.select();btn.textContent="Select and copy below"};try{navigator.clipboard.writeText(src).then(()=>{btn.textContent=done},fallback)}catch(e){fallback()}}
+document.getElementById("copyFav").addEventListener("click",e=>{if(!favs.size){e.target.textContent="Nothing starred yet";return}copyText(e.target,[...favs].sort((a,b)=>a-b).map(code).join(", "),"favfb",`Copied ${favs.size} codes`)});
+function toggleFav(i){favs.has(i)?favs.delete(i):favs.add(i);saveFavs();document.getElementById("copyFav").textContent="Copy shortlist";const s=grid.querySelector(`.tile[data-i="${i}"] .star`);s.classList.toggle("on",favs.has(i));s.setAttribute("aria-pressed",favs.has(i));if(cur===i)syncDStar();if(F.fav)applyFilter()}
+
+const dlg=document.getElementById("dlg");let cur=-1;
+const syncDStar=()=>{document.getElementById("dstar").textContent=favs.has(cur)?"★ Shortlisted":"☆ Shortlist"};
+function openD(i){
+  cur=i;const L=LOGOS[i],I=INKS[L.ink],f=FONTS[L.font],M=MARKS[L.m],D=inkDark(I);
+  document.getElementById("big").innerHTML=svgFor(L,"d");
+  document.getElementById("dnum").innerHTML=`<span><b>${code(i)}</b> / N500</span><span>${M.fam}</span>`;
+  document.getElementById("dname").textContent=M.n;document.getElementById("ddesc").textContent=M.d;
+  document.getElementById("dspec").innerHTML=`<dt>Layout</dt><dd>${{super:"Mark at the top right of the name",right:"Mark beside the name",left:"Mark before the name",stack:"Mark above the name"}[L.lay]}${L.tag?", with tagline":""}</dd><dt>Type</dt><dd>${f.lbl}, ${L.slant?"italic":"upright"}${L.sw?", thickened":""}</dd><dt>Name</dt><dd>${L.cs==="mixed"?"LSR-Vis":"LSR-VIS"}${L.st==="hy"?", accent hyphen":L.st==="two"?", two-tone":""}</dd><dt>Ink</dt><dd><span class="sw" style="background:${I.F}"></span>${I.F} ${I.A!==I.F?`&nbsp;<span class="sw" style="background:${I.A}"></span>${I.A}`:""}<br>${I.n}</dd>`;
+  document.getElementById("minis").innerHTML=`<figure><div>${svgFor(L,"m0",{...I,A:I.F})}</div><figcaption>One color</figcaption></figure><figure><div style="background:${I.F}">${svgFor(L,"m1",D)}</div><figcaption>On dark</figcaption></figure><figure><div class="sm">${svgFor(L,"m2")}</div><figcaption>Small size</figcaption></figure>`;
+  document.getElementById("fb").hidden=true;document.getElementById("copy").textContent="Copy SVG";syncDStar();
+  if(!dlg.open)dlg.showModal();
+  dlg.querySelectorAll(".big svg,.minis svg").forEach(s=>fit(s));
+  const B=tight(build(L,"k1")),Br=tight(build(L,"k2",D)),Ic=tight(M.s(I,L.k,"k3")),IcR=tight(M.s(D,L.k,"k4"));
+  document.getElementById("use").innerHTML=[mTruck(B),mTicket(B,I),mHat(Ic),mApp(IcR,Ic,Br,I)].map(s=>`<div class="mock">${s}</div>`).join("");
+  dlg.scrollTop=0;
+}
+document.getElementById("close").onclick=()=>dlg.close();
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+const step=d=>{const vis=[...grid.querySelectorAll(".tile:not([hidden])")].map(t=>+t.dataset.i),k=vis.indexOf(cur);if(vis.length)openD(vis[(k+d+vis.length)%vis.length])};
+document.getElementById("prev").onclick=()=>step(-1);document.getElementById("next").onclick=()=>step(1);
+dlg.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
+document.getElementById("dstar").onclick=()=>toggleFav(cur);
+document.getElementById("copy").onclick=e=>{
+  const s=document.querySelector("#big svg").cloneNode(true),f=FONTS[LOGOS[cur].font];s.insertAdjacentHTML("afterbegin",`<rect x="-10000" y="-10000" width="20000" height="20000" fill="#fff"/>`);
+  copyText(e.target,`<!-- LSR-Vis ${code(cur)} · font: ${f.f}${f.st?" ("+f.st+")":""} ${f.w} (Google Fonts) -->\n`+s.outerHTML,"fb","Copied");
+};
+
+(async()=>{
+  try{await Promise.all(FONTS.map(f=>document.fonts.load(cssFont(f),"LSR-VISis")))}catch(e){}
+  try{await document.fonts.load('500 20px "Google Sans"',"APHRON FLUID SYSTEM")}catch(e){}
+  await document.fonts.ready;
+  plan();
+  if(location.hash==="#qa"){document.getElementById("loading").hidden=true;grid.style.gridTemplateColumns="repeat(6,1fr)";
+    grid.innerHTML=MARKS.map((M,m)=>[0,1,2,3,4,5].map(k=>{const dk=k===5,I=dk?inkDark(INKS[0]):INKS[[0,1,0,7,2][k]];return `<div class="tile"><div class="art" style="aspect-ratio:1;background:${dk?INKS[0].F:"#fff"}"><svg viewBox="-6 -6 112 112" style="left:6%;top:6%;width:88%;height:88%">${M.s(I,k,"q"+m+"_"+k)}</svg></div><div class="cap"><span><b>${M.n}</b> k${k}</span></div></div>`}).join("")).join("");return}
+  const frag=document.createDocumentFragment();
+  LOGOS.forEach(L=>{
+    const t=document.createElement("div");t.className="tile";t.tabIndex=0;t.dataset.i=L.i;t.setAttribute("role","button");
+    t.setAttribute("aria-label",`${code(L.i)}: ${MARKS[L.m].n}, ${FONTS[L.font].lbl}`);
+    t.innerHTML=`<div class="art">${svgFor(L,"t"+L.i)}</div><div class="cap"><span><b>${code(L.i)}</b> ${MARKS[L.m].n}</span><span>${FONTS[L.font].sh}</span></div><button class="star${favs.has(L.i)?" on":""}" aria-label="Shortlist ${code(L.i)}" aria-pressed="${favs.has(L.i)}">★</button>`;
+    t.querySelector(".star").addEventListener("click",e=>{e.stopPropagation();toggleFav(L.i)});
+    t.addEventListener("click",()=>openD(L.i));
+    t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openD(L.i)}});
+    frag.appendChild(t);
+  });
+  grid.appendChild(frag);
+  grid.querySelectorAll(".art svg").forEach(s=>fit(s));
+  document.getElementById("loading").hidden=true;
+  saveFavs();applyFilter();
+  if(location.hash&&/^#N\d{3}$/.test(location.hash)){const i=+location.hash.slice(2)-1;if(LOGOS[i])openD(i)}
+})();
+</script>
+</body>
+</html>
