@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LSR-Vis L Series</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Michroma&family=Google+Sans+Flex:wdth,wght@125,500;125,600;125,700&family=Google+Sans:wght@400;500;700&family=Archivo:wdth,wght@125,700&family=Lexend+Exa:wght@500&family=Krona+One&family=Saira:wdth,wght@125,600&family=Unbounded:wght@500&family=Sora:wght@600&family=Red+Hat+Display:wght@700&family=Exo+2:wght@700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a proof sheet of stacked L lockups. Quiet grey ground, square white tiles, a concept strip, and a detail sheet with in-use mockups. */
+:root{
+  --bg:#E9E9E5; --surface:#FFFFFF; --fg:#18191B; --muted:#62645F; --line:#D2D2CC; --accent:#D98E04;
+  --body:"Google Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#1A1B1A; --fg:#EDEDE8; --muted:#A1A39C; --line:#33352F; color-scheme:dark}}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);margin:0}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:28px 64px}
+.nav{font-family:var(--mono);font-size:12px;letter-spacing:.04em;margin-bottom:18px;display:flex;gap:18px;flex-wrap:wrap}
+.nav a{color:var(--muted);text-decoration:none}.nav a:hover{color:var(--fg)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+header{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px 32px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+h1{font-weight:700;font-size:clamp(32px,5vw,54px);line-height:1;margin:6px 0 0;letter-spacing:-.02em}
+h1 span{color:var(--accent)}
+.lede{max-width:66ch;color:var(--muted);margin:12px 0 0;line-height:1.55}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;display:flex;gap:16px;flex-wrap:wrap}
+.meta b{color:var(--fg);font-weight:600}
+.marks{display:flex;flex-direction:column;gap:10px;padding-block:18px 6px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.mk{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 6px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:#18191B;font:inherit}
+.mk svg{width:56px;height:56px;overflow:visible}
+.mk span{font-family:var(--mono);font-size:10px;line-height:1.25;text-align:center;color:#4A4C47}
+.mk[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-block:14px;position:sticky;top:0;background:var(--bg);z-index:5}
+.lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:2px}
+.chip,select{font:500 13px var(--body);border:1px solid var(--line);background:var(--surface);color:#18191B;padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+.count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;align-items:start}
+.tile{position:relative;display:flex;flex-direction:column;border-radius:4px;overflow:hidden;cursor:pointer;background:#fff;border:1px solid var(--line)}
+.art{position:relative;aspect-ratio:1;background:#fff}
+.art svg{position:absolute;left:14%;top:12%;width:72%;height:76%;overflow:visible}
+.cap{display:flex;justify-content:space-between;gap:8px;padding:8px 11px;font-family:var(--mono);font-size:11px;color:#6A6C66;border-top:1px solid #ECECE8;background:#fff}
+.cap b{color:#18191B;font-weight:600}
+.cap span:first-child{white-space:nowrap;flex:none}
+.cap span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star{position:absolute;top:7px;right:7px;width:28px;height:28px;border-radius:50%;border:1px solid #E2E2DC;background:#fff;color:#9A9C95;font-size:14px;line-height:26px;cursor:pointer;opacity:0;transition:opacity .15s}
+.tile:hover .star,.star.on{opacity:1}
+.star.on{background:#F2C14E;border-color:#F2C14E;color:#18191B}
+@media (hover:none){.star{opacity:1}}
+.empty,.loading{padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px}
+[hidden]{display:none!important}
+dialog{border:0;padding:0;border-radius:8px;max-width:min(1100px,calc(100vw - 32px));width:100%;max-height:92vh;overflow:auto;background:#fff;color:#18191B}
+dialog::backdrop{background:rgba(10,10,10,.55)}
+.dl{display:grid;grid-template-columns:1.3fr 1fr}
+@media (max-width:760px){.dl{grid-template-columns:1fr}}
+.big{position:relative;min-height:360px;background:#fff;border-right:1px solid #ECECE8}
+.big svg{position:absolute;left:14%;top:10%;width:72%;height:80%}
+.side{padding:22px;display:flex;flex-direction:column;gap:13px;min-width:0;background:#FAFAF8}
+.side h2{font-size:25px;margin:0;line-height:1.1;font-weight:700}
+.side p{margin:0;color:#5D5F5A;line-height:1.5;font-size:14px}
+.side .meta{color:#6A6C66}.side .meta b{color:#18191B}
+dl.spec{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-family:var(--mono);font-size:12px}
+dl.spec dt{color:#6A6C66;text-transform:uppercase;letter-spacing:.06em}
+dl.spec dd{margin:0}
+.sw{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.minis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.minis figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.minis div{position:relative;aspect-ratio:1;border-radius:4px;border:1px solid #E2E2DC;background:#fff}
+.minis svg{position:absolute;left:14%;top:12%;width:72%;height:76%}
+.minis div.sm svg{left:36%;width:28%;top:35%;height:30%}
+.minis figcaption{font-family:var(--mono);font-size:10px;color:#6A6C66;text-align:center}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn{font:500 13px var(--body);padding:9px 14px;border-radius:6px;border:1px solid #D8D8D2;background:#fff;color:#18191B;cursor:pointer}
+.btn.pri{background:#18191B;color:#fff;border-color:#18191B}
+textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
+.use{padding:18px 22px 22px;border-top:1px solid #ECECE8;display:flex;flex-direction:column;gap:10px}
+.use .eyebrow{color:#6A6C66}
+.usegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (max-width:760px){.usegrid{grid-template-columns:1fr}}
+.mock{border:1px solid #E2E2DC;border-radius:6px;overflow:hidden}
+.mock svg{display:block;width:100%;height:auto}
+#scratch{position:absolute;left:-9999px;top:0;width:800px;height:400px;visibility:hidden}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:letter;margin:0.4in}
+@media print{
+  :root{--bg:#fff;--fg:#18191B;--muted:#555;--line:#ccc;color-scheme:light}
+  html,body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .nav,.bar,.star,dialog,#empty{display:none!important}
+  h1{font-size:28px}.lede{font-size:10.5px}
+  .mgrid{grid-template-columns:repeat(10,1fr);gap:5px}.mk{padding:6px 3px 4px;gap:4px;break-inside:avoid}.mk svg{width:30px;height:30px}.mk span{font-size:6.5px}
+  .grid{grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .tile{break-inside:avoid;border-color:#ddd}
+  .cap{font-size:8px;padding:4px 7px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><a href="index.html">← Main set (550)</a><a href="round8.html">Round 8</a><a href="wordmarks.html">One-piece wordmarks</a></div>
+  <div class="eyebrow">L series · the L as the hero</div>
+  <header>
+    <div>
+      <h1>LSR-Vis <span>L series</span></h1>
+      <p class="lede">Sixty logos built around one big L, with SR-Vis set under it or sitting on its foot. Twenty ways of treating the L, three versions of each: the bent pipe, a wellhead, a stem made of aphrons, an outlined pipe, the name carried inside the foot, and more. Click any logo to see it on a truck door, a field ticket, a hard hat and as an app icon. Star the ones you like and use Copy shortlist to send me the codes.</p>
+    </div>
+    <div class="meta"><span><b>60</b> logos</span><span><b>20</b> treatments</span><span><b>12</b> typefaces</span><span><b>8</b> inks</span></div>
+  </header>
+
+  <section class="marks">
+    <div class="eyebrow">The 20 treatments · click one to see only its three versions</div>
+    <div class="mgrid" id="mgrid"></div>
+  </section>
+
+  <div class="bar" role="toolbar" aria-label="Filter logos">
+    <span class="lbl">Lockup</span>
+    <span id="lays" style="display:contents"></span>
+    <select id="fType" aria-label="Typeface"><option value="all">All typefaces</option><option value="mich">Michroma</option><option value="gs">Google Sans</option><option value="other">Other wide faces</option></select>
+    <button class="chip" id="fItal" aria-pressed="false">Italic only</button>
+    <span class="spacer"></span>
+    <span class="count" id="count"></span>
+    <button class="chip" id="favs" aria-pressed="false">★ Shortlist <span id="favn">0</span></button>
+    <button class="chip" id="copyFav">Copy shortlist</button>
+    <button class="chip" id="print">Print</button>
+  </div>
+  <textarea class="fallback" id="favfb" hidden readonly aria-label="Shortlist codes"></textarea>
+
+  <p class="loading" id="loading">Setting 60 lockups…</p>
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="empty" hidden>Nothing here yet. Hover a tile and tap the star to shortlist it.</p>
+</div>
+
+<dialog id="dlg">
+  <div class="dl">
+    <div class="big" id="big"></div>
+    <div class="side">
+      <div>
+        <div class="meta" id="dnum"></div>
+        <h2 id="dname"></h2>
+      </div>
+      <p id="ddesc"></p>
+      <dl class="spec" id="dspec"></dl>
+      <div class="minis" id="minis"></div>
+      <div class="acts">
+        <button class="btn pri" id="copy">Copy SVG</button>
+        <button class="btn" id="dstar">☆ Shortlist</button>
+        <button class="btn" id="prev" aria-label="Previous logo">←</button>
+        <button class="btn" id="next" aria-label="Next logo">→</button>
+        <button class="btn" id="close">Close</button>
+      </div>
+      <textarea class="fallback" id="fb" hidden readonly aria-label="SVG source"></textarea>
+    </div>
+  </div>
+  <div class="use"><div class="eyebrow">In use</div><div class="usegrid" id="use"></div></div>
+</dialog>
+<svg id="scratch" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<script>
+/* ---------- helpers ---------- */
+const N=v=>Math.round(v*100)/100;
+const dot=(x,y,r,f)=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="${f}"/>`;
+const ring=(x,y,r,s,w,extra="")=>`<circle cx="${N(x)}" cy="${N(y)}" r="${N(r)}" fill="none" stroke="${s}" stroke-width="${N(w)}" ${extra}/>`;
+const stroke=(d,col,w,extra="")=>`<path d="${d}" fill="none" stroke="${col}" stroke-width="${N(w)}" ${extra}/>`;
+const aBands=(x,y,r,F,A)=>ring(x,y,r*.92,F,r*.16)+ring(x,y,r*.6,A,r*.22)+dot(x,y,r*.27,F);
+const aShell=(x,y,r,F,A)=>ring(x,y,r*.79,A,r*.42)+dot(x,y,r*.33,F);
+const hx=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const mix=(a,b,t)=>{const A=hx(a),B=hx(b);return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")};
+
+const INKS=[
+  {n:"Petrol & amber",F:"#0B3C49",A:"#D98E04"},{n:"Graphite & red",F:"#2B2D31",A:"#D62828"},
+  {n:"Navy & teal",F:"#0E2A47",A:"#0F8B8D"},{n:"Black & ember",F:"#111111",A:"#E4572E"},
+  {n:"Midnight & mint",F:"#0B2545",A:"#13B494"},{n:"Forest & olive",F:"#1F3D2B",A:"#7A9A01"},
+  {n:"Slate & orange",F:"#37474F",A:"#FF6D00"},{n:"Black, one color",F:"#111111",A:"#111111"}
+].map(i=>({...i,B:"#FFFFFF",T:mix(i.F,"#FFFFFF",.8)}));
+const inkDark=I=>({...I,F:"#FFFFFF",A:I.A===I.F?"#FFFFFF":I.A,B:I.F,T:mix(I.F,"#FFFFFF",.3)});
+
+const FONTS=[
+  {f:"Michroma",w:400,lbl:"Michroma",sh:"Michroma",g:"mich",wf:.66,tsw:.012},
+  {f:"Google Sans Flex",w:600,st:"expanded",lbl:"Google Sans Flex, wide, 600",sh:"GS Flex wide 600",g:"gs",wf:1},
+  {f:"Google Sans Flex",w:700,st:"expanded",lbl:"Google Sans Flex, wide, 700",sh:"GS Flex wide 700",g:"gs",wf:1.15},
+  {f:"Google Sans Flex",w:500,st:"expanded",lbl:"Google Sans Flex, wide, 500",sh:"GS Flex wide 500",g:"gs",wf:.9},
+  {f:"Google Sans",w:700,lbl:"Google Sans 700",sh:"Google Sans 700",g:"gs",wf:1.15},
+  {f:"Archivo",w:700,st:"expanded",lbl:"Archivo Expanded",sh:"Archivo Exp.",g:"other",wf:1.15},
+  {f:"Lexend Exa",w:500,lbl:"Lexend Exa",sh:"Lexend Exa",g:"other",wf:.95},
+  {f:"Krona One",w:400,lbl:"Krona One",sh:"Krona One",g:"other",wf:1.1},
+  {f:"Saira",w:600,st:"expanded",lbl:"Saira Expanded",sh:"Saira Exp.",g:"other",wf:1.05},
+  {f:"Unbounded",w:500,lbl:"Unbounded",sh:"Unbounded",g:"other",wf:1},
+  {f:"Sora",w:600,lbl:"Sora",sh:"Sora",g:"other",wf:1.1},
+  {f:"Exo 2",w:700,lbl:"Exo 2",sh:"Exo 2",g:"other",wf:1.1}
+];
+const cssFont=f=>`${f.w} ${f.st||"normal"} 100px "${f.f}"`;
+const cv=document.createElement("canvas"),cx=cv.getContext("2d");
+const CAP=new Map();
+function cap(fi){if(!CAP.has(fi)){cx.font=cssFont(FONTS[fi]);CAP.set(fi,cx.measureText("H").actualBoundingBoxAscent)}return CAP.get(fi)}
+function width(fi,s){cx.font=cssFont(FONTS[fi]);return cx.measureText(s).width}
+function fitText(fi,str,maxW,maxCap){const w100=width(fi,str),c100=cap(fi),s=Math.min(100*maxW/w100,maxCap?100*maxCap/c100:1e9);return{s,w:w100*s/100,c:c100*s/100}}
+function textEl(fi,str,x,y,s,fill,anchor="start",extra=""){const f=FONTS[fi];return `<text x="${N(x)}" y="${N(y)}" font-family="'${f.f}'" font-weight="${f.w}"${f.st?` font-stretch="${f.st}"`:""} font-size="${N(s)}" text-anchor="${anchor}" fill="${fill}"${f.tsw?` stroke="${fill}" stroke-width="${N(s*f.tsw)}" stroke-linejoin="round"`:""} ${extra}>${str}</text>`}
+
+/* ---------- the L: a 100-tall box; stem at the left, foot along the bottom ---------- */
+const H=100;
+const Lp=(w,R,F,top=0)=>{const x=w/2,fy=H-w/2;return `M${N(x)} ${N(top)} V${N(fy-R)} A${N(R)} ${N(R)} 0 0 0 ${N(x+R)} ${N(fy)} H${N(F)}`};
+/* Each treatment draws the L alone. c = {I, w (stroke), R (bend), F (foot length), D (dot helper that keeps circles round under italics)}.
+   It returns {g: skewed content, d: unskewed dots, iw, ih: box size}. */
+const T=[
+ {id:"pipe",n:"Bent pipe",tp:"shelf",d:"The plain well-L: a bent pipe. The name sits on the foot, inside the angle.",
+  m:c=>({g:stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d:"",iw:c.F,ih:H})},
+ {id:"pipeU",n:"Bent pipe, name under",tp:"under",d:"The same pipe with the name set under the foot, as wide as the L.",
+  m:c=>({g:stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d:"",iw:c.F,ih:H})},
+ {id:"rise",n:"Rising in the angle",tp:"under",d:"Aphrons rise through the angle of the L, growing as they go. The name sits under the foot.",
+  m:c=>{const x0=c.w+c.F*.18,cw=c.F-c.w-c.F*.18;let d="";[[.15,.76,.05],[.42,.56,.07],[.62,.34,.09],[.4,.1,.11]].forEach(([q,y,r])=>{d+=c.D(x0+cw*q,H*y-c.w*.6,c.F*r,c.I.A)});return{g:stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d,iw:c.F,ih:H}}},
+ {id:"dots",n:"Fluid in the pipe",tp:"shelf",d:"White aphrons travelling inside the L, spaced evenly along the whole pipe.",
+  m:c=>{const r=c.w*.27,l1=H-c.w/2-c.R-c.w*.3,l2=Math.PI/2*c.R,l3=c.F-c.w/2-c.R-c.w*.8,Lt=l1+l2+l3,n=4;let d="";
+   for(let i=0;i<n;i++){let q=Lt*(i+.5)/n,x,y;if(q<l1){x=c.w/2;y=c.w*.3+q}else if(q<l1+l2){const th=Math.PI-(Math.PI/2)*((q-l1)/l2);x=c.w/2+c.R+c.R*Math.cos(th);y=H-c.w/2-c.R+c.R*Math.sin(th)}else{x=c.w/2+c.R+(q-l1-l2);y=H-c.w/2}d+=c.D(x,y,r,c.I.B)}
+   return{g:stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d,iw:c.F,ih:H}}},
+ {id:"toe",n:"Well to aphron",tp:"under",d:"The foot runs straight into an aphron at the toe.",
+  m:c=>{const r=c.w*1.15,fx=c.F-2*r-c.w*.3;return{g:stroke(Lp(c.w,c.R,fx),c.I.F,c.w),d:c.D(c.F-r,H-c.w/2,r,"__A"),iw:c.F,ih:H+r-c.w/2+c.w*.2}}},
+ {id:"head",n:"Wellhead",tp:"shelf",d:"A short flange on top of the stem, like a wellhead, with aphrons escaping above it.",
+  m:c=>{const fw=c.w*2.4,fh=c.w*.7,top=fh-.6;let d="";[[.2,-1.1,.3],[-.25,-2.3,.42],[.3,-3.9,.56]].forEach(([dx,dy,r])=>{d+=c.D(c.w/2+dx*c.w,dy*c.w,c.w*r,c.I.A)});
+   return{g:`<rect x="${N(c.w/2-fw/2)}" y="0" width="${N(fw)}" height="${N(fh)}" rx="${N(fh*.2)}" fill="${c.I.F}"/>`+stroke(Lp(c.w,c.R,c.F,top),c.I.F,c.w),d,iw:c.F,ih:H,top:-c.w*4.6}}},
+ {id:"bubstem",n:"Stem of aphrons",tp:"under",d:"The stem is a column of aphrons that grow as they rise; the foot is solid.",
+  m:c=>{let d="",r=c.w*.55,y=H-c.w;const rs=[.55,.62,.7,.78,.86],x0=c.w/2-r;for(let i=0;i<5;i++){r=c.w*rs[i];if(i)y-=r+c.w*.42;d+=c.D(c.w/2,y,r,i===4?c.I.A:c.I.F);y-=r}
+   return{g:`<rect x="${N(x0)}" y="${N(H-c.w)}" width="${N(c.F-x0)}" height="${N(c.w)}" rx="${N(c.w*.12)}" fill="${c.I.F}"/>`,d,iw:c.F,ih:H,left:x0}}},
+ {id:"outline",n:"Outlined pipe",tp:"under",d:"The pipe drawn as two walls with aphrons moving through the bore.",
+  m:c=>{const w=c.w*1.25,R=Math.max(c.R,w*.9),iw=w*.42;let d="";const l1=H-w/2-R-w*.3,l2=Math.PI/2*R,l3=c.F-w/2-R-w*.9,Lt=l1+l2+l3;
+   for(let i=0;i<3;i++){let q=Lt*(i+.5)/3,x,y;if(q<l1){x=w/2;y=w*.3+q}else if(q<l1+l2){const th=Math.PI-(Math.PI/2)*((q-l1)/l2);x=w/2+R+R*Math.cos(th);y=H-w/2-R+R*Math.sin(th)}else{x=w/2+R+(q-l1-l2);y=H-w/2}d+=c.D(x,y,iw*.36,c.I.A)}
+   return{g:stroke(Lp(w,R,c.F),c.I.F,w)+stroke(Lp(w,R,c.F),c.I.B,iw),d,iw:c.F,ih:H}}},
+ {id:"tile",n:"Knockout tile",tp:"underC",d:"A white L cut out of a solid tile, the way it would sit as an app icon.",
+  m:c=>({g:`<rect width="100" height="100" rx="${c.k%2?50:22}" fill="${c.I.F}"/>`+`<g transform="translate(22 20) scale(.58)">${stroke(Lp(c.w*1.2,c.R*1.1,96),c.I.B,c.w*1.2)}</g>`+(c.k===2?"":`<g transform="translate(22 20) scale(.58)">${[[48,72,4],[56,56,5.5],[50,36,7]].map(b=>dot(b[0],b[1],b[2],c.I.A===c.I.F?c.I.B:c.I.A)).join("")}</g>`),d:"",iw:100,ih:100})},
+ {id:"quarter",n:"Quarter aphron",tp:"under",d:"The inner corner of the L is filled with a quarter of an aphron: concentric rings from the bend outward.",
+  m:c=>{const x0=c.w,y0=H-c.w,u=c.w*.5;let g=`<defs><clipPath id="q${c.u}"><rect x="${N(x0)}" y="0" width="${N(c.F-x0)}" height="${N(y0)}"/></clipPath></defs><g clip-path="url(#q${c.u})">`;
+   [[5.2,c.I.F,.9],[4.1,c.I.A,1.3],[2.9,c.I.F,.9],[1.9,c.I.A,1.3]].forEach(([k,col,sw])=>{g+=ring(x0,y0,u*k,col,u*sw)});g+=dot(x0,y0,u*1.1,c.I.F)+`</g>`;
+   return{g:stroke(Lp(c.w,c.w*.5,c.F),c.I.F,c.w)+g,d:"",iw:c.F,ih:H}}},
+ {id:"strata",n:"Through the strata",tp:"under",d:"Thin formation layers behind the stem: the well drilled down through them.",
+  m:c=>{let g="";[.22,.4,.58].forEach((y,i)=>{g+=`<rect x="${N(-c.w*1.3)}" y="${N(H*y)}" width="${N(c.w*3.6)}" height="${N(c.w*.22)}" fill="${c.I.A}"/>`});return{g:g+stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d:"",iw:c.F,ih:H,left:-c.w*1.3}}},
+ {id:"iso",n:"Pipe in depth",tp:"under",d:"Two offset Ls read as one pipe with depth, the back wall in the accent.",
+  m:c=>{const o=c.w*.42;return{g:`<g transform="translate(${N(o)} ${N(-o)})">${stroke(Lp(c.w,c.R,c.F-o),c.I.A,c.w)}</g>`+stroke(Lp(c.w,c.R,c.F-o),c.I.F,c.w),d:"",iw:c.F,ih:H,top:-o}}},
+ {id:"dotted",n:"L of bubbles",tp:"under",d:"The whole letter drawn as a run of aphrons.",
+  m:c=>{const r=c.w*.46,gap=r*2.45;return{g:stroke(Lp(c.w,c.R,c.F),c.I.F,r*2,`stroke-linecap="round" stroke-dasharray="0 ${N(gap)}"`),d:"",iw:c.F,ih:H}}},
+ {id:"lv",n:"L and V",tp:"underFull",d:"The two capitals of the name: the V stands in the angle of the L, with an aphron where its arms meet. The full name sits under.",
+  m:c=>{const x0=c.w+c.w*.9,x1=c.F,top=H*.08,vw=c.w*.6,bot=H-c.w+vw*.3,mid=(x0+x1)/2;
+   return{g:`<path d="M${N(x0)} ${N(top)} L${N(mid)} ${N(bot)} L${N(x1)} ${N(top)}" fill="none" stroke="${c.I.A}" stroke-width="${N(vw)}" stroke-linejoin="round" stroke-linecap="round"/>`+stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d:c.D(mid,top+(bot-top)*.3,vw*.9,"__K"),iw:c.F,ih:H}}},
+ {id:"twotone",n:"Two-tone",tp:"shelf",d:"The vertical in ink, the lateral in the accent, meeting at the bend.",
+  m:c=>{const x=c.w/2,fy=H-c.w/2,R=c.R,mx=x+R-R*Math.SQRT1_2,my=fy-R+R*Math.SQRT1_2,A=c.I.A===c.I.F?c.I.T:c.I.A;
+   return{g:stroke(Lp(c.w,R,c.F),c.I.F,c.w)+stroke(`M${N(mx)} ${N(my)} A${N(R)} ${N(R)} 0 0 0 ${N(x+R)} ${N(fy)} H${N(c.F)}`,A,c.w),d:"",iw:c.F,ih:H}}},
+ {id:"rest",n:"Resting aphrons",tp:"under",d:"Three aphrons of different sizes resting on the foot, side by side, not merging.",
+  m:c=>{const ft=H-c.w,gap=c.w*.5;let x=c.w+c.w*.7,d="",last=0;[[.95,"__B"],[.7,"__A"],[.5,"__S"]].forEach(([k,kind],i)=>{const r=c.w*k;x+=r;d+=kind==="__B"?c.D(x,ft-r-c.w*.12,r,"__B"):kind==="__A"?c.D(x,ft-r-c.w*.12,r,c.I.A):c.D(x,ft-r-c.w*.12,r,"__S");last=x+r;x+=r+gap});const F=Math.max(c.F,last+c.w*.5);return{g:stroke(Lp(c.w,c.R,F),c.I.F,c.w),d,iw:F,ih:H}}},
+ {id:"wave",n:"Fluid level",tp:"under",d:"A fluid surface runs along inside the foot, a wave in the pipe.",
+  m:c=>{const fy=H-c.w/2,a=c.w*.16,x0=c.w/2+c.R,x1=c.F-c.w*.3;let p=`M${N(x0)} ${N(fy)}`;const n=Math.max(3,Math.round((x1-x0)/(c.w*.9)));const seg=(x1-x0)/n;for(let i=0;i<n;i++)p+=` q${N(seg/2)} ${N(i%2?a*2:-a*2)} ${N(seg)} 0`;
+   return{g:stroke(Lp(c.w,c.R,c.F),c.I.F,c.w)+stroke(p,c.I.B,c.w*.16,`stroke-linecap="round"`),d:c.D(c.w/2,H*.32,c.w*.2,c.I.B)+c.D(c.w/2,H*.5,c.w*.2,c.I.B),iw:c.F,ih:H}}},
+ {id:"roundel",n:"Roundel",tp:"underC",d:"A white L on a solid disc, with the aphron symbol at the top right of the disc.",
+  m:c=>({g:dot(50,50,50,c.I.F)+`<g transform="translate(27 26) scale(.5)">${stroke(Lp(c.w*1.25,c.R*1.1,92),c.I.B,c.w*1.25)}</g>`+(c.k===1?"":aShell(66,34,8,c.I.B,c.I.A===c.I.F?c.I.B:c.I.A)),d:"",iw:100,ih:100})},
+ {id:"infoot",n:"Name in the foot",tp:"custom",d:"A heavy L whose foot carries the rest of the name in white. One piece, nothing beside it.",
+  m:c=>{const w=Math.max(c.w*1.9,24),gx=w*.55,ft=fitText(c.fi,c.name,1e9,w*.5),F=Math.max(c.F*1.08,w+gx+ft.w+w*.4);return{g:stroke(Lp(w,w*.55,F),c.I.F,w),d:"",iw:F,ih:H,W:w}},
+  text:(c,m)=>{const w=m.W,gx=w*.55,ft=fitText(c.fi,c.name,m.iw-w-gx-w*.35,w*.5);return textEl(c.fi,c.name,w+gx,H-w/2+ft.c/2,ft.s,c.I.B)}},
+ {id:"drip",n:"Drip from the toe",tp:"shelf",d:"Fluid hangs from the end of the foot instead of falling: the W444 drip, on the L.",
+  m:c=>{const x=c.F-c.w*.7,top=H-c.w*.6,l=c.w*2.2,r=c.w*.42;const p=`M${N(x-r*.6)} ${N(top)} C${N(x-r*.6)} ${N(top+l*.45)} ${N(x-r)} ${N(top+l*.7)} ${N(x-r)} ${N(top+l)} A${N(r)} ${N(r)} 0 0 0 ${N(x+r)} ${N(top+l)} C${N(x+r)} ${N(top+l*.7)} ${N(x+r*.6)} ${N(top+l*.45)} ${N(x+r*.6)} ${N(top)} Z`;
+   return{g:`<path d="${p}" fill="${c.I.A}"/>`+stroke(Lp(c.w,c.R,c.F),c.I.F,c.w),d:c.D(x,top+l,r*.3,c.I.B),iw:c.F,ih:top+l+r+c.w*.2}}}
+];
+
+/* ---------- the sixty ---------- */
+const INKI=[0,1,2,3,4,5,6,7];
+const LOGOS=[];
+function plan(){
+  T.forEach((t,ti)=>{for(let k=0;k<3;k++){
+    const fonts=[[0,1,5],[0,2,10],[1,0,11],[0,3,6],[2,0,8],[0,1,7],[4,0,9],[0,2,5],[1,0,10],[0,4,11],[3,0,6],[0,1,8],[2,0,7],[0,2,9],[0,1,5],[4,0,10],[0,3,11],[1,0,6],[0,2,8],[0,1,7]][ti];
+    const fi=fonts[k],noItal=["tile","roundel","bubstem","dotted","quarter"].includes(t.id);
+    LOGOS.push({i:LOGOS.length,t:ti,k,fi,ink:INKI[(ti*3+k*5)%8],cs:(ti+k)%3===1?"mixed":"upper",slant:!noItal&&k===2?12:0});
+  }});
+}
+const code=i=>"L"+String(i+1).padStart(2,"0");
+
+/* ---------- lockup assembly ---------- */
+let uN=0;
+function build(L,u,inkO,iconOnly){
+  const t=T[L.t],I=inkO||INKS[L.ink],f=FONTS[L.fi],deg=iconOnly?0:L.slant,tn=Math.tan(deg*Math.PI/180);
+  const wB=16*f.wf,c={I,fi:L.fi,k:L.k,u:(u||"u")+(uN++),w:wB,R:Math.max(wB*1.4,H*.24),F:96,name:L.cs==="mixed"?"SR-Vis":"SR-VIS",full:L.cs==="mixed"?"LSR-Vis":"LSR-VIS",
+    D:(x,y,r,col)=>{const X=x-tn*y;if(col==="__A")return aBands(X,y,r,I.F,I.A);if(col==="__S")return aShell(X,y,r,I.F,I.A);if(col==="__B")return ring(X,y,r*.86,I.A,r*.28);if(col==="__F")return dot(X,y,r,I.F);if(col==="__K")return dot(X,y,r*1.3,I.B)+ring(X,y,r*.8,I.F,r*.4)+dot(X,y,r*.3,I.A);return dot(X,y,r,col)}};
+  const m=t.m(c),fx=m.left||0,fy=m.top||0;
+  const frame=`<rect x="${N(fx)}" y="${N(fy)}" width="${N(m.iw-fx)}" height="${N(m.ih-fy)}" fill="none"/>`;
+  let tg="";
+  if(!iconOnly){
+    if(t.tp==="shelf"){const gx=c.w*.6,gy=c.w*.38,y=H-c.w-gy,ft=fitText(c.fi,c.name,c.F-c.w-gx-tn*(c.w/2+gy),(H-c.w)*.4);tg=textEl(c.fi,c.name,c.w+gx,y,ft.s,I.F)}
+    else if(t.tp==="under"||t.tp==="underC"||t.tp==="underFull"){const str=t.tp==="underFull"?c.full:c.name,W=m.iw,ft=fitText(c.fi,str,W,H*.3),y=m.ih+H*.1+ft.c,dx=tn*(y-H);tg=t.tp==="underC"?textEl(c.fi,str,W/2+dx,y,ft.s,I.F,"middle"):textEl(c.fi,str,dx,y,ft.s,I.F)}
+    else if(t.tp==="custom")tg=t.text(c,m);
+  }
+  return `<g transform="skewX(${-deg})">${frame}${m.g}${tg}</g>${m.d}`;
+}
+const svgFor=(L,u,ink,icon)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="LSR-Vis logo ${code(L.i)}"><g class="c">${build(L,u,ink,icon)}</g></svg>`;
+function fit(svg,pad=.04){try{const b=svg.querySelector("g.c").getBBox();if(!b.width)return;const p=Math.max(b.width,b.height)*pad;svg.setAttribute("viewBox",`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`)}catch(e){}}
+
+/* ---------- in-use mockups ---------- */
+const scratch=document.getElementById("scratch");
+function tight(inner,pad=.02){scratch.innerHTML=`<g>${inner}</g>`;const b=scratch.firstChild.getBBox(),p=Math.max(b.width,b.height)*pad;scratch.innerHTML="";return{vb:`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`,w:b.width+2*p,h:b.height+2*p,inner}}
+const placeIn=(B,x,y,w,h,ax="mid",ay="mid")=>{const s=Math.min(w/B.w,h/B.h),W=B.w*s,Hh=B.h*s,X=ax==="start"?x:ax==="end"?x+w-W:x+(w-W)/2,Y=ay==="start"?y:ay==="end"?y+h-Hh:y+(h-Hh)/2;return `<svg x="${N(X)}" y="${N(Y)}" width="${N(W)}" height="${N(Hh)}" viewBox="${B.vb}">${B.inner}</svg>`};
+const GS=`font-family="'Google Sans',sans-serif"`,MONO=`font-family="'IBM Plex Mono',monospace"`;
+const mock=(g,label)=>`<svg viewBox="0 0 600 380" role="img" aria-label="${label}">${g}</svg>`;
+function mTruck(B){return mock(`<rect width="600" height="380" fill="#D9DCDD"/><path d="M40 70 Q40 40 70 40 H470 Q520 40 545 90 L570 150 V340 H40 Z" fill="#FFFFFF" stroke="#BFC3C5" stroke-width="2"/><path d="M70 58 H455 Q492 58 512 98 L532 140 H70 Z" fill="#3B4247"/><path d="M90 70 H300 L280 128 H90 Z" fill="#525B61" opacity=".6"/><rect x="438" y="166" width="54" height="12" rx="6" fill="#C9CDCF"/>`+placeIn(B,180,160,240,170)+`<text x="20" y="368" ${MONO} font-size="11" fill="#5D5F5A">Truck door</text>`,"Truck door mockup")}
+function mTicket(B,I){
+  let g=`<rect width="600" height="380" fill="#F4F3EE"/><rect x="30" y="22" width="540" height="330" fill="#FFFFFF" stroke="#DDDCD5"/>`+placeIn(B,56,36,90,70,"start","start");
+  g+=`<text x="544" y="60" text-anchor="end" ${MONO} font-size="11" font-weight="600" fill="#18191B" letter-spacing="1.5">FIELD TICKET</text><text x="544" y="76" text-anchor="end" ${MONO} font-size="11" fill="#6A6C66">No. 000000</text><line x1="56" y1="118" x2="544" y2="118" stroke="${I.F}" stroke-width="1.5"/>`;
+  [["Customer",56,144],["Lease / well",310,144],["County",56,172],["Date",310,172]].forEach(([t,x,y])=>{g+=`<text x="${x}" y="${y}" ${GS} font-size="11" fill="#6A6C66">${t}</text><line x1="${x+78}" y1="${y+2}" x2="${x+230}" y2="${y+2}" stroke="#CFCFC8"/>`});
+  g+=`<rect x="56" y="194" width="488" height="22" fill="#F1F0EA"/>`;[["Item",64],["Qty",380],["Unit",440],["Amount",500]].forEach(([t,x])=>{g+=`<text x="${x}" y="209" ${GS} font-size="10.5" font-weight="700" fill="#18191B">${t}</text>`});
+  ["LSR-Vis aphron fluid","Mixing and pump time","Field engineer"].forEach((t,i)=>{const y=236+i*26;g+=`<text x="64" y="${y}" ${GS} font-size="11" fill="#18191B">${t}</text><text x="380" y="${y}" ${GS} font-size="11" fill="#9A9B95">—</text><text x="440" y="${y}" ${GS} font-size="11" fill="#9A9B95">${["bbl","hr","day"][i]}</text><text x="500" y="${y}" ${GS} font-size="11" fill="#9A9B95">—</text><line x1="56" y1="${y+9}" x2="544" y2="${y+9}" stroke="#ECECE6"/>`});
+  g+=`<line x1="56" y1="326" x2="240" y2="326" stroke="#CFCFC8"/><text x="56" y="341" ${GS} font-size="10" fill="#6A6C66">Customer signature</text><line x1="360" y1="326" x2="544" y2="326" stroke="#CFCFC8"/><text x="360" y="341" ${GS} font-size="10" fill="#6A6C66">Field engineer</text><text x="20" y="372" ${MONO} font-size="11" fill="#5D5F5A">Field ticket</text>`;
+  return mock(g,"Field ticket mockup");
+}
+function mHat(Ic){return mock(`<rect width="600" height="380" fill="#EEEDE7"/><g transform="translate(300 176) scale(1.32) translate(-200 -185)"><path d="M70 250 Q70 110 200 96 Q330 110 330 250 Z" fill="#FFFFFF" stroke="#CFCFC8" stroke-width="1.6"/><path d="M196 98 Q200 160 200 250" stroke="#E6E6E0" stroke-width="10" fill="none"/><path d="M40 252 Q200 230 360 252 Q366 268 352 274 Q200 258 48 274 Q34 268 40 252 Z" fill="#FFFFFF" stroke="#CFCFC8" stroke-width="1.6"/><circle cx="200" cy="184" r="40" fill="#FFFFFF" stroke="#E6E6E0"/>${placeIn(Ic,172,156,56,56)}</g><text x="20" y="368" ${MONO} font-size="11" fill="#5D5F5A">Hard hat sticker: the L alone</text>`,"Hard hat mockup")}
+function mApp(IcR,Ic,Br,I){
+  let g=`<rect width="600" height="380" fill="#F4F3EE"/><rect x="40" y="30" width="130" height="130" rx="30" fill="${I.F}"/>`+placeIn(IcR,66,56,78,78)+`<text x="105" y="184" text-anchor="middle" ${GS} font-size="13" fill="#18191B">LSR-Vis</text>`;
+  g+=`<rect x="214" y="40" width="236" height="38" rx="9" fill="#FFFFFF" stroke="#DDDCD5"/>`+placeIn(Ic,226,50,18,18)+`<text x="254" y="64" ${GS} font-size="13" fill="#18191B">LSR-Vis · Aphron fluid…</text>`;
+  [[64,214],[32,304],[16,362]].forEach(([s,x])=>{g+=`<rect x="${x-5}" y="${166-s-5}" width="${s+10}" height="${s+10}" rx="6" fill="#FFFFFF" stroke="#E6E6E0"/>`+placeIn(Ic,x,166-s,s,s)+`<text x="${x+s/2}" y="190" text-anchor="middle" ${MONO} font-size="10" fill="#6A6C66">${s}px</text>`});
+  g+=`<rect x="0" y="212" width="600" height="168" fill="${I.F}"/>`+placeIn(Br,230,224,140,142)+`<text x="20" y="368" ${MONO} font-size="11" fill="#FFFFFF" opacity=".7">App icon, browser tab, on dark</text>`;
+  return mock(g,"App icon and dark background mockup");
+}
+
+/* ---------- page ---------- */
+let favs=new Set();
+try{favs=new Set(JSON.parse(localStorage.getItem("lsrv-lmark-favs")||"[]"))}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem("lsrv-lmark-favs",JSON.stringify([...favs]))}catch(e){};document.getElementById("favn").textContent=favs.size};
+const grid=document.getElementById("grid"),mgrid=document.getElementById("mgrid"),laysEl=document.getElementById("lays");
+const LAYN={shelf:"Name on the foot",under:"Name under",underC:"Name under",underFull:"Name under",custom:"Name in the foot"};
+[["All","All"],["shelf","Name on the foot"],["under","Name under"],["custom","Name in the foot"]].forEach(([v,t])=>{const b=document.createElement("button");b.className="chip";b.dataset.lay=v;b.textContent=t;b.setAttribute("aria-pressed",v==="All");laysEl.appendChild(b)});
+const F={t:"all",lay:"All",type:"all",ital:false,fav:false};
+const layKey=L=>({shelf:"shelf",under:"under",underC:"under",underFull:"under",custom:"custom"})[T[L.t].tp];
+function applyFilter(){let shown=0;grid.querySelectorAll(".tile").forEach(el=>{const L=LOGOS[+el.dataset.i],ok=(F.t==="all"||L.t===+F.t)&&(F.lay==="All"||layKey(L)===F.lay)&&(F.type==="all"||FONTS[L.fi].g===F.type)&&(!F.ital||L.slant>0)&&(!F.fav||favs.has(L.i));el.hidden=!ok;if(ok)shown++});document.getElementById("empty").hidden=shown>0||!LOGOS.length;document.getElementById("count").textContent=`${shown} shown`}
+function setT(v){F.t=v;mgrid.querySelectorAll(".mk").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===String(v)));applyFilter()}
+mgrid.addEventListener("click",e=>{const b=e.target.closest(".mk");if(!b)return;setT(F.t===b.dataset.t?"all":b.dataset.t);document.querySelector(".bar").scrollIntoView({behavior:"smooth",block:"start"})});
+laysEl.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;F.lay=b.dataset.lay;laysEl.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));applyFilter()});
+document.getElementById("fType").addEventListener("change",e=>{F.type=e.target.value;applyFilter()});
+const togg=(id,key)=>{const b=document.getElementById(id);b.addEventListener("click",()=>{F[key]=!F[key];b.setAttribute("aria-pressed",F[key]);applyFilter()})};
+togg("fItal","ital");togg("favs","fav");
+document.getElementById("print").addEventListener("click",()=>window.print());
+function copyText(btn,src,fbId,done){const fb=document.getElementById(fbId),fallback=()=>{fb.value=src;fb.hidden=false;fb.select();btn.textContent="Select and copy below"};try{navigator.clipboard.writeText(src).then(()=>{btn.textContent=done},fallback)}catch(e){fallback()}}
+document.getElementById("copyFav").addEventListener("click",e=>{if(!favs.size){e.target.textContent="Nothing starred yet";return}copyText(e.target,[...favs].sort((a,b)=>a-b).map(code).join(", "),"favfb",`Copied ${favs.size} codes`)});
+function toggleFav(i){favs.has(i)?favs.delete(i):favs.add(i);saveFavs();document.getElementById("copyFav").textContent="Copy shortlist";const s=grid.querySelector(`.tile[data-i="${i}"] .star`);s.classList.toggle("on",favs.has(i));s.setAttribute("aria-pressed",favs.has(i));if(cur===i)syncDStar();if(F.fav)applyFilter()}
+
+const dlg=document.getElementById("dlg");let cur=-1;
+const syncDStar=()=>{document.getElementById("dstar").textContent=favs.has(cur)?"★ Shortlisted":"☆ Shortlist"};
+function openD(i){
+  cur=i;const L=LOGOS[i],I=INKS[L.ink],f=FONTS[L.fi],t=T[L.t],D=inkDark(I);
+  document.getElementById("big").innerHTML=svgFor(L,"d");
+  document.getElementById("dnum").innerHTML=`<span><b>${code(i)}</b> / L60</span><span>${LAYN[t.tp]}</span>`;
+  document.getElementById("dname").textContent=t.n;document.getElementById("ddesc").textContent=t.d;
+  document.getElementById("dspec").innerHTML=`<dt>Lockup</dt><dd>${LAYN[t.tp]}</dd><dt>Type</dt><dd>${f.lbl}, ${L.slant?"italic":"upright"}</dd><dt>Name</dt><dd>${t.tp==="underFull"?(L.cs==="mixed"?"LSR-Vis":"LSR-VIS")+", full name under the L":(L.cs==="mixed"?"SR-Vis":"SR-VIS")+({shelf:" on the foot",custom:" in the foot"}[t.tp]||" under the L")}</dd><dt>Ink</dt><dd><span class="sw" style="background:${I.F}"></span>${I.F} ${I.A!==I.F?`&nbsp;<span class="sw" style="background:${I.A}"></span>${I.A}`:""}<br>${I.n}</dd>`;
+  document.getElementById("minis").innerHTML=`<figure><div>${svgFor(L,"m0",{...I,A:I.F})}</div><figcaption>One color</figcaption></figure><figure><div style="background:${I.F}">${svgFor(L,"m1",D)}</div><figcaption>On dark</figcaption></figure><figure><div class="sm">${svgFor(L,"m2")}</div><figcaption>Small size</figcaption></figure>`;
+  document.getElementById("fb").hidden=true;document.getElementById("copy").textContent="Copy SVG";syncDStar();
+  if(!dlg.open)dlg.showModal();
+  dlg.querySelectorAll(".big svg,.minis svg").forEach(s=>fit(s));
+  const B=tight(build(L,"k1")),Br=tight(build(L,"k2",D)),Ic=tight(build(L,"k3",null,true)),IcR=tight(build(L,"k4",D,true));
+  document.getElementById("use").innerHTML=[mTruck(B),mTicket(B,I),mHat(Ic),mApp(IcR,Ic,Br,I)].map(s=>`<div class="mock">${s}</div>`).join("");
+  dlg.scrollTop=0;
+}
+document.getElementById("close").onclick=()=>dlg.close();
+dlg.addEventListener("click",e=>{if(e.target===dlg)dlg.close()});
+const step=d=>{const vis=[...grid.querySelectorAll(".tile:not([hidden])")].map(t=>+t.dataset.i),k=vis.indexOf(cur);if(vis.length)openD(vis[(k+d+vis.length)%vis.length])};
+document.getElementById("prev").onclick=()=>step(-1);document.getElementById("next").onclick=()=>step(1);
+dlg.addEventListener("keydown",e=>{if(e.key==="ArrowLeft")step(-1);if(e.key==="ArrowRight")step(1)});
+document.getElementById("dstar").onclick=()=>toggleFav(cur);
+document.getElementById("copy").onclick=e=>{const s=document.querySelector("#big svg").cloneNode(true),f=FONTS[LOGOS[cur].fi];s.insertAdjacentHTML("afterbegin",`<rect x="-10000" y="-10000" width="20000" height="20000" fill="#fff"/>`);copyText(e.target,`<!-- LSR-Vis ${code(cur)} · ${T[LOGOS[cur].t].n} · font: ${f.f}${f.st?" ("+f.st+")":""} ${f.w} (Google Fonts) -->\n`+s.outerHTML,"fb","Copied")};
+
+(async()=>{
+  try{await Promise.all(FONTS.map(f=>document.fonts.load(cssFont(f),"LSR-VISis")))}catch(e){}
+  await document.fonts.ready;
+  plan();
+  T.forEach((t,i)=>{const b=document.createElement("button");b.className="mk";b.dataset.t=i;b.setAttribute("aria-pressed","false");b.title=t.d;
+    const L0=LOGOS[i*3];b.innerHTML=`<svg viewBox="0 0 200 200" aria-hidden="true">${build({...L0,slant:0},"s"+i,INKS[0],true)}</svg><span>${t.n}</span>`;mgrid.appendChild(b)});
+  mgrid.querySelectorAll("svg").forEach(s=>{s.innerHTML=`<g class="c">${s.innerHTML}</g>`;fit(s,.03)});
+  const frag=document.createDocumentFragment();
+  LOGOS.forEach(L=>{
+    const el=document.createElement("div");el.className="tile";el.tabIndex=0;el.dataset.i=L.i;el.setAttribute("role","button");el.setAttribute("aria-label",`${code(L.i)}: ${T[L.t].n}, ${FONTS[L.fi].lbl}`);
+    el.innerHTML=`<div class="art">${svgFor(L,"t"+L.i)}</div><div class="cap"><span><b>${code(L.i)}</b> ${T[L.t].n}</span><span>${FONTS[L.fi].sh}</span></div><button class="star${favs.has(L.i)?" on":""}" aria-label="Shortlist ${code(L.i)}" aria-pressed="${favs.has(L.i)}">★</button>`;
+    el.querySelector(".star").addEventListener("click",e=>{e.stopPropagation();toggleFav(L.i)});
+    el.addEventListener("click",()=>openD(L.i));
+    el.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openD(L.i)}});
+    frag.appendChild(el);
+  });
+  grid.appendChild(frag);
+  grid.querySelectorAll(".art svg").forEach(s=>fit(s));
+  document.getElementById("loading").hidden=true;
+  saveFavs();applyFilter();
+  if(location.hash==="#review")grid.style.gridTemplateColumns="repeat(3,1fr)";
+  const only=location.hash.match(/^#only=([L\d,]+)$/);
+  if(only){const set=new Set(only[1].split(","));grid.querySelectorAll(".tile").forEach(t=>{t.hidden=!set.has(code(+t.dataset.i))});grid.style.gridTemplateColumns="repeat(3,1fr)"}
+  if(location.hash&&/^#L\d{2}$/.test(location.hash)){const i=+location.hash.slice(2)-1;if(LOGOS[i])openD(i)}
+})();
+</script>
+</body>
+</html>
