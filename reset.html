@@ -110,19 +110,19 @@ textarea.fallback{width:100%;height:80px;font:11px var(--mono)}
   <header>
     <div>
       <h1>LSR-Vis <span>Reset series</span></h1>
-      <p class="lede">Five hundred new logos built only from what has worked: a clean, wide wordmark, mostly in italics, with one small, clear mark. Twenty-five marks, twenty versions of each. Star the ones you like, then use Copy shortlist to send me the codes. Click any logo to see it on a truck door, a field ticket, a hard hat and as an app icon.</p>
+      <p class="lede">Five hundred logos built only from what has worked: a clean, wide wordmark, mostly in italics, with one small, clear mark. Twenty-five marks, twenty versions of each. Fifty more, N501 to N550, draw the L itself as the well. Star the ones you like, then use Copy shortlist to send me the codes. Click any logo to see it on a truck door, a field ticket, a hard hat and as an app icon.</p>
     </div>
-    <div class="meta"><span><b>500</b> logos</span><span><b>25</b> marks</span><span><b>4</b> layouts</span><span><b>18</b> typefaces</span><span><b>8</b> inks</span></div>
+    <div class="meta"><span><b>550</b> logos</span><span><b>26</b> marks</span><span><b>4</b> layouts</span><span><b>18</b> typefaces</span><span><b>8</b> inks</span></div>
   </header>
   <div class="rules">
     <div><b>Kept from W444</b>Michroma and the wide faces near it, set in italics. A small mark at the top right of the name. About a third of the set is in Michroma itself.</div>
     <div><b>Kept from W452</b>A bubble beside the name, now drawn as a true aphron: round, every layer centered, as in the cross-section.</div>
     <div><b>Kept from #059</b>The well path with aphrons rising off both the vertical and the horizontal sections, alone and as a badge.</div>
-    <div><b>Left out</b>The aphron as the dot of the i, the L drawn as a well, and the lateral running under the name.</div>
+    <div><b>Left out</b>The aphron as the dot of the i, and the lateral running under the name. The L drawn as the well was left out of the first 500 and added back on request as N501 to N550.</div>
   </div>
 
   <section class="marks">
-    <div class="eyebrow">The 25 marks · click one to see only its 20 versions</div>
+    <div class="eyebrow">The 26 marks · click one to see only its versions</div>
     <div class="mgrid" id="mgrid"></div>
   </section>
 
@@ -294,7 +294,18 @@ const MARKS=[
  {id:"cluster",big:1,n:"Cluster",fam:"Tile",d:"Three aphrons of different sizes.",
   s:(I,k)=>{const g=aBands(36,60,32,I.F,I.A)+aShell(78,28,18,I.F,I.A)+ring(83,75,8.5,I.F,5)+dot(83,75,3,I.A);return k%2?`<g transform="translate(100 0) scale(-1 1)">${g}</g>`:g}}
 ];
-const FAMS=["Aphron","Lateral","Fluid","Formation","Tile"];
+MARKS.push({id:"wellL",n:"The L as the well",fam:"Well-L",big:1,d:"The L of the name redrawn as the well: the stem is the vertical, the foot is the lateral, and the corner is the bend. Aphrons travel inside it or rise off it.",
+  s:(I,k,u)=>{const v=k%6,w=14,R=22,x0=30,fy=79,A=I.A===I.F?I.F:I.A;
+   const L=`<path d="M${x0} 6 V${N(fy-R)} A${R} ${R} 0 0 0 ${x0+R} ${N(fy)} H94" fill="none" stroke="${I.F}" stroke-width="${w}"/>`;
+   if(v===2)return `<g transform="translate(13 30) scale(.7)">${L}</g>`+[[35,26,2.4],[32,17.5,3.4],[37.5,6.5,4.6]].map(b=>dot(b[0],b[1],b[2],A)).join("");
+   let g=L;
+   if(v===1)g+=[[x0,26],[31.5,64.5],[64,fy]].map(p=>dot(p[0],p[1],3.4,I.B)).join("");
+   if(v===3)g+=[[x0,20],[x0,38]].map(p=>dot(p[0],p[1],3.4,I.B)).join("");
+   if(v===0)g+=[[50,63,2.8],[60,52,3.8],[55,38,4.8],[67,22,5.8]].map(b=>dot(b[0],b[1],b[2],A)).join("");
+   if(v===3)g+=[[56,58,3.2],[64,43,4.4],[58,27,5.4]].map(b=>dot(b[0],b[1],b[2],A)).join("");
+   if(v===4)g+=aShell(54.5,54.5,10.5,I.F,I.A);
+   return g}});
+const FAMS=["Aphron","Lateral","Fluid","Formation","Tile","Well-L"];
 const LAYS={super:"Top right",right:"Beside",left:"Before",stack:"Above"};
 
 /* ---------- 500 logos: 25 marks × 20 versions, no two alike ---------- */
@@ -305,7 +316,7 @@ const pickW=(r,arr)=>{let x=r()*arr.reduce((s,a)=>s+a.wt,0);for(let i=0;i<arr.le
 const LOGOS=[];
 function plan(){
   const seen=new Set();
-  for(let j=0;j<20;j++)for(let m=0;m<MARKS.length;m++){
+  for(let j=0;j<20;j++)for(let m=0;m<25;m++){
     const M=MARKS[m],lay=(M.sm?SEQ_SM:SEQ_LG)[(j+m)%20];
     for(let a=0;a<40;a++){
       const r=rng(7919*(m+1)+j*104729+a*31337),font=((j+m)%3===0)?0:1+Math.floor(r()*17),f=FONTS[font];
@@ -315,8 +326,70 @@ function plan(){
       const key=JSON.stringify(L);if(seen.has(key))continue;seen.add(key);L.i=LOGOS.length;LOGOS.push(L);break;
     }
   }
+  /* fifty with the L drawn as the well */
+  const WB=["rise","pipe","none","rise","well","heel","rise","pipe","none","well"],WA=["bands","shell","solid","quarter"],WAS=["bands","shell","solid"],WF=[1,2,3,4,5,6,7,11,13,15];
+  for(let j=0;j<50;j++)for(let a=0;a<40;a++){
+    const r=rng(424242+j*7919+a*104729),bub=WB[j%10],apos0=(j%4<2)?"super":"right",aph=(bub==="heel"||j%3===2)?null:(apos0==="super"?WAS[(j*5+a)%3]:WA[(j*5+a)%4]),apos=aph?apos0:"none";
+    const font=(j%5===0||j%5===2)?0:WF[(j*3+a)%WF.length],f=FONTS[font];
+    const L={m:25,k:0,lay:apos,font,slant:r()<.75?12:0,cs:(f.caps||r()<.65)?"upper":"mixed",ink:pickW(r,INKS),sw:0,ls:[0,0,0,4][Math.floor(r()*4)],
+      st:r()<.15?"two":"plain",tag:r()<.15,ms:apos==="super"?[.56,.66][Math.floor(r()*2)]:[1,1.2][Math.floor(r()*2)],
+      w:{bub,aph,heel:[.28,.34,.4,.34,.28,.34][(j+a)%6],lc:r()<.3?"accent":"ink"}};
+    const key=JSON.stringify(L);if(seen.has(key))continue;seen.add(key);L.i=LOGOS.length;LOGOS.push(L);break;
+  }
 }
+const WELL_BUB={rise:"aphrons rising off the foot",pipe:"aphrons in the pipe",none:"",both:"aphrons in the pipe and rising",well:"aphrons rising from the wellhead",heel:"aphron in the corner"},WELL_BEND={.28:"medium",.34:"round",.4:"wide"};
+const wellName=L=>"Well-L"+(WELL_BUB[L.w.bub]?" · "+{rise:"rising",pipe:"in the pipe",both:"pipe + rising",well:"wellhead",heel:"corner aphron"}[L.w.bub]:"")+(L.w.aph?" · "+MARKS.find(m=>m.id===L.w.aph).n:"");
+const wellK=L=>({rise:0,pipe:1,well:2,both:3,heel:4,none:5})[L.w.bub];
+const nameOf=L=>L.w?"Well-L"+(WELL_BUB[L.w.bub]?" · "+{rise:"rising",pipe:"in the pipe",both:"pipe + rising",well:"wellhead",heel:"corner aphron"}[L.w.bub]:""):MARKS[L.m].n;
 const code=i=>"N"+String(i+1).padStart(3,"0");
+
+/* ---------- the font's own L, measured, so the well matches its stem, foot and height ---------- */
+const rv=document.createElement("canvas"),rx=rv.getContext("2d",{willReadFrequently:true}),GEO=new Map();
+function geo(fi){
+  if(GEO.has(fi))return GEO.get(fi);
+  const f=FONTS[fi],c=cap(fi),w=280,h=260,ox=80,oy=190;rv.width=w;rv.height=h;
+  rx.font=cssFont(f);try{rx.fontStretch=f.st||"normal"}catch(e){}rx.fillStyle="#000";rx.textBaseline="alphabetic";rx.fillText("L",ox,oy);
+  const d=rx.getImageData(0,0,w,h).data,ink=(x,y)=>{const X=Math.round(x+ox),Y=Math.round(y+oy);return X<0||Y<0||X>=w||Y>=h?0:d[(Y*w+X)*4+3]};
+  const runs=y=>{const o=[];let s=null;for(let x=-40;x<=190;x++){const on=ink(x,y)>110;if(on&&s===null)s=x;if(!on&&s!==null){o.push([s,x-1]);s=null}}if(s!==null)o.push([s,190]);return o};
+  const mid=runs(Math.round(-c/2))[0]||[0,c*.18],l=mid[0],sw=mid[1]-mid[0]+1,base=runs(-2),footR=base.length?base[base.length-1][1]+1:l+sw*3;
+  let th=0;for(let y=-1;y>-c;y--){if(ink(footR-2,y)>110)th++;else break}
+  const g={cap:c,l,w:sw,footR,th:Math.max(th,sw*.6),advL:width(fi,"LS",0)-width(fi,"S",0)};GEO.set(fi,g);return g;
+}
+function buildWell(L,u,inkO){
+  const I=inkO||INKS[L.ink],f=FONTS[L.font],G=geo(L.font),w=G.w,c=G.cap,t=Math.tan(L.slant*Math.PI/180),P=(x,y)=>[x-t*y,y],Wl=L.w;
+  const rest=L.cs==="mixed"?"SR-Vis":"SR-VIS",Lc=Wl.lc==="accent"?I.A:I.F,bc=Wl.lc==="accent"?I.F:I.A,cx0=G.l+w/2,fy=-w/2;
+  const pipe=Wl.bub==="pipe"||Wl.bub==="both",rising=Wl.bub==="rise"||Wl.bub==="both",wellhead=Wl.bub==="well",heelA=Wl.bub==="heel";
+  /* bend: a fraction of cap height, so it reads as a well in thin and heavy faces alike; the stem keeps a straight run of at least 40% of the cap */
+  const R=Math.min(c*Wl.heel,c*.6-w/2),Ri=Math.max(0,R-w/2),ax0=cx0+R,ay0=fy-R;
+  const gapLS=Math.max(0,w*.6-(G.advL-G.footR));
+  let extra=Math.max(0,cx0+R+2*w-G.footR);if(rising)extra+=c*.22;
+  let ap=null;
+  if(heelA){const gap=Math.max(w*.5,c*.07),hs=Math.max(w*2,c*.26),sR=hs/2;
+    /* nest it in the bend: centred on the arc when it fits inside the inner radius, otherwise one gap off stem and foot */
+    ap=sR<=Ri-gap?{x:ax0,y:ay0,hs}:{x:cx0+w/2+gap+sR,y:fy-w/2-gap-sR,hs};
+    extra=Math.max(extra,ap.x+sR+w*.9-G.advL-gapLS)}
+  const xF=G.footR+extra,xS=G.advL+extra+gapLS,Wt=xS+width(L.font,rest,L.ls);
+  const ff=`font-family="'${f.f}'" font-weight="${f.w}"${f.st?` font-stretch="${f.st}"`:""}${L.ls?` letter-spacing="${L.ls}"`:""}`;
+  const b2=rest.slice(3),txt=L.st==="two"?`SR-<tspan fill="${I.A}">${b2}</tspan>`:L.st==="hy"?`SR<tspan fill="${I.A}">-</tspan>${b2}`:rest;
+  let g=`<path d="M${N(cx0)} ${N(-c)} V${N(fy-R)} A${N(R)} ${N(R)} 0 0 0 ${N(cx0+R)} ${N(fy)} H${N(xF)}" fill="none" stroke="${Lc}" stroke-width="${N(w)}"/><text x="${N(xS)}" y="0" ${ff} font-size="100" fill="${I.F}">${txt}</text>`;
+  if(L.tag)g+=`<g transform="translate(${N(G.l)} 0)">${tagSvg(I,c,Wt-G.l,t)}</g>`;
+  g=`<g transform="skewX(${-L.slant})">${g}</g>`;
+  let dots="";
+  const D=(x,y,r,col)=>{const p=P(x,y);return dot(p[0],p[1],r,col)};
+  if(pipe){const r=w*.29,l1=(fy-R)-(-c+w*.3),l2=Math.PI/2*R,l3=(xF-w*.9)-(cx0+R),Lt=l1+l2+l3,n=Math.max(2,Math.min(4,Math.round(Lt/(c*.3))));
+    for(let i=0;i<n;i++){let q=Lt*(i+.5)/n,x,y;if(q<l1){x=cx0;y=-c+w*.3+q}else if(q<l1+l2){const th=Math.PI-(Math.PI/2)*((q-l1)/l2);x=ax0+R*Math.cos(th);y=ay0+R*Math.sin(th)}else{x=cx0+R+(q-l1-l2);y=fy}dots+=D(x,y,r,I.B)}}
+  if(rising){const x0=cx0+w/2,cw=xF-x0,r1=Math.min(w*.42,cw*.2),r2=Math.min(w*.6,cw*.24),r3=Math.min(w*.8,cw*.28),gap=Math.max(w*.45,c*.05);
+    const y1=fy-w/2-w*.9-r1,y2=Math.min(-c*.52,y1-r1-r2-gap),y3=Math.min(-c*.86,y2-r2-r3-gap);
+    [[.24,y1,r1],[.5,y2,r2],[.74,y3,r3]].forEach(([q,y,r])=>{const x=x0+cw*q;const inAir=Math.hypot(x-ax0,y-ay0)+r<Ri-.5||x>ax0||y<ay0;if(inAir&&x-r>cx0+w/2&&y+r<fy-w/2)dots+=D(x,y,r,bc)})}
+  if(wellhead){[[.25,.95,.3],[-.35,2.15,.45],[.45,3.75,.62],[-.15,5.75,.8]].forEach(([dx,dy,r])=>{dots+=D(cx0+dx*w,-c-dy*w,w*r,bc)})}
+  if(ap){const p=P(ap.x,ap.y);dots+=aShell(p[0],p[1],ap.hs/2,I.F,I.A)}
+  let after="";
+  if(Wl.aph){const M=MARKS.find(m=>m.id===Wl.aph),s=c*L.ms;let mx,my;
+    if(L.lay==="super"){my=-c-s*.03;mx=Wt+c*.1+s/2+t*(-my)}else{my=-c/2;mx=Wt+c*.3+s/2+t*c*.5}
+    after=`<g transform="translate(${N(mx-s/2)} ${N(my-s/2)}) scale(${Math.round(s*10)/1000})">${M.s(I,Wl.aph==="solid"?1:0,u)}</g>`}
+  return g+dots+after;
+}
+const iconOf=(L,I,u)=>L.w?(L.w.aph?MARKS.find(m=>m.id===L.w.aph).s(I,0,u):MARKS[25].s(I,wellK(L),u)):MARKS[L.m].s(I,L.k,u);
 
 /* ---------- lockup ---------- */
 function wordSvg(L,I){
@@ -325,12 +398,13 @@ function wordSvg(L,I){
   const inner=L.st==="hy"?`LSR<tspan fill="${I.A}"${sA}>-</tspan>${b}`:L.st==="two"?`LSR-<tspan fill="${I.A}"${sA}>${b}</tspan>`:`LSR-${b}`;
   return `<text x="0" y="0" ${ff} font-size="100" fill="${I.F}"${L.sw?` stroke="${I.F}" stroke-width="${L.sw}" stroke-linejoin="round"`:""}>${inner}</text>`;
 }
-function tagSvg(I,c,W){
+function tagSvg(I,c,W,t=0){
   const ts=c*.3,txt="APHRON FLUID SYSTEM";cx.font=`500 ${ts}px "Google Sans"`;
   const w0=cx.measureText(txt).width,fitLs=(W-w0)/(txt.length-1),ls=fitLs>=ts*.08&&fitLs<=ts*.55?fitLs:ts*.3;
-  return `<text x="0" y="${N(c*.58)}" font-family="'Google Sans',sans-serif" font-weight="500" font-size="${N(ts)}" letter-spacing="${N(ls)}" fill="${I.A}">${txt}</text>`;
+  return `<text x="${N(t*c*.58)}" y="${N(c*.58)}" font-family="'Google Sans',sans-serif" font-weight="500" font-size="${N(ts)}" letter-spacing="${N(ls)}" fill="${I.A}">${txt}</text>`;
 }
 function build(L,u,inkO){
+  if(L.w)return buildWell(L,u,inkO);
   const I=inkO||INKS[L.ink],M=MARKS[L.m],c=cap(L.font),t=Math.tan(L.slant*Math.PI/180);
   const W=width(L.font,L.cs==="mixed"?"LSR-Vis":"LSR-VIS",L.ls)+L.sw/2,s=c*L.ms;
   let mx,my;
@@ -339,7 +413,7 @@ function build(L,u,inkO){
   else if(L.lay==="left"){my=-c/2;mx=-c*.3-s/2+t*c*.5}
   else{my=-c-c*.32-s/2;mx=W/2+t*c*.5}
   if(M.top&&(L.lay==="right"||L.lay==="left")){const d=(-c+s*.46)-my;my+=d;mx+=t*(-d)}
-  return `<g transform="skewX(${-L.slant})">${wordSvg(L,I)}${L.tag?tagSvg(I,c,W):""}</g><g transform="translate(${N(mx-s/2)} ${N(my-s/2)}) scale(${Math.round(s*10)/1000})">${M.s(I,L.k,u)}</g>`;
+  return `<g transform="skewX(${-L.slant})">${wordSvg(L,I)}${L.tag?tagSvg(I,c,W,t):""}</g><g transform="translate(${N(mx-s/2)} ${N(my-s/2)}) scale(${Math.round(s*10)/1000})">${M.s(I,L.k,u)}</g>`;
 }
 const svgFor=(L,u,ink)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="LSR-Vis logo ${code(L.i)}"><g class="c">${build(L,u,ink)}</g></svg>`;
 function fit(svg,pad=.03){try{const b=svg.querySelector("g.c").getBBox();if(!b.width)return;const p=Math.max(b.width,b.height)*pad;svg.setAttribute("viewBox",`${N(b.x-p)} ${N(b.y-p)} ${N(b.width+2*p)} ${N(b.height+2*p)}`)}catch(e){}}
@@ -409,14 +483,15 @@ const syncDStar=()=>{document.getElementById("dstar").textContent=favs.has(cur)?
 function openD(i){
   cur=i;const L=LOGOS[i],I=INKS[L.ink],f=FONTS[L.font],M=MARKS[L.m],D=inkDark(I);
   document.getElementById("big").innerHTML=svgFor(L,"d");
-  document.getElementById("dnum").innerHTML=`<span><b>${code(i)}</b> / N500</span><span>${M.fam}</span>`;
-  document.getElementById("dname").textContent=M.n;document.getElementById("ddesc").textContent=M.d;
-  document.getElementById("dspec").innerHTML=`<dt>Layout</dt><dd>${{super:"Mark at the top right of the name",right:"Mark beside the name",left:"Mark before the name",stack:"Mark above the name"}[L.lay]}${L.tag?", with tagline":""}</dd><dt>Type</dt><dd>${f.lbl}, ${L.slant?"italic":"upright"}${L.sw?", thickened":""}</dd><dt>Name</dt><dd>${L.cs==="mixed"?"LSR-Vis":"LSR-VIS"}${L.st==="hy"?", accent hyphen":L.st==="two"?", two-tone":""}</dd><dt>Ink</dt><dd><span class="sw" style="background:${I.F}"></span>${I.F} ${I.A!==I.F?`&nbsp;<span class="sw" style="background:${I.A}"></span>${I.A}`:""}<br>${I.n}</dd>`;
+  document.getElementById("dnum").innerHTML=`<span><b>${code(i)}</b> / N${LOGOS.length}</span><span>${M.fam}</span>`;
+  document.getElementById("dname").textContent=L.w?wellName(L):M.n;document.getElementById("ddesc").textContent=M.d;
+  const layTxt=L.w?`The L drawn as the well, ${WELL_BEND[L.w.heel]||"medium"} bend${WELL_BUB[L.w.bub]?", "+WELL_BUB[L.w.bub]:""}${L.w.aph?`, ${MARKS.find(m=>m.id===L.w.aph).n.toLowerCase()} aphron ${L.lay==="super"?"at the top right":"beside the name"}`:""}${L.w.lc==="accent"?", L in the accent":""}`:{super:"Mark at the top right of the name",right:"Mark beside the name",left:"Mark before the name",stack:"Mark above the name"}[L.lay];
+  document.getElementById("dspec").innerHTML=`<dt>Layout</dt><dd>${layTxt}${L.tag?", with tagline":""}</dd><dt>Type</dt><dd>${f.lbl}, ${L.slant?"italic":"upright"}${L.sw?", thickened":""}</dd><dt>Name</dt><dd>${L.cs==="mixed"?"LSR-Vis":"LSR-VIS"}${L.st==="hy"?", accent hyphen":L.st==="two"?", two-tone":""}</dd><dt>Ink</dt><dd><span class="sw" style="background:${I.F}"></span>${I.F} ${I.A!==I.F?`&nbsp;<span class="sw" style="background:${I.A}"></span>${I.A}`:""}<br>${I.n}</dd>`;
   document.getElementById("minis").innerHTML=`<figure><div>${svgFor(L,"m0",{...I,A:I.F})}</div><figcaption>One color</figcaption></figure><figure><div style="background:${I.F}">${svgFor(L,"m1",D)}</div><figcaption>On dark</figcaption></figure><figure><div class="sm">${svgFor(L,"m2")}</div><figcaption>Small size</figcaption></figure>`;
   document.getElementById("fb").hidden=true;document.getElementById("copy").textContent="Copy SVG";syncDStar();
   if(!dlg.open)dlg.showModal();
   dlg.querySelectorAll(".big svg,.minis svg").forEach(s=>fit(s));
-  const B=tight(build(L,"k1")),Br=tight(build(L,"k2",D)),Ic=tight(M.s(I,L.k,"k3")),IcR=tight(M.s(D,L.k,"k4"));
+  const B=tight(build(L,"k1")),Br=tight(build(L,"k2",D)),Ic=tight(iconOf(L,I,"k3")),IcR=tight(iconOf(L,D,"k4"));
   document.getElementById("use").innerHTML=[mTruck(B),mTicket(B,I),mHat(Ic),mApp(IcR,Ic,Br,I)].map(s=>`<div class="mock">${s}</div>`).join("");
   dlg.scrollTop=0;
 }
@@ -436,13 +511,14 @@ document.getElementById("copy").onclick=e=>{
   try{await document.fonts.load('500 20px "Google Sans"',"APHRON FLUID SYSTEM")}catch(e){}
   await document.fonts.ready;
   plan();
-  if(location.hash==="#qa"){document.getElementById("loading").hidden=true;grid.style.gridTemplateColumns="repeat(6,1fr)";
-    grid.innerHTML=MARKS.map((M,m)=>[0,1,2,3,4,5].map(k=>{const dk=k===5,I=dk?inkDark(INKS[0]):INKS[[0,1,0,7,2][k]];return `<div class="tile"><div class="art" style="aspect-ratio:1;background:${dk?INKS[0].F:"#fff"}"><svg viewBox="-6 -6 112 112" style="left:6%;top:6%;width:88%;height:88%">${M.s(I,k,"q"+m+"_"+k)}</svg></div><div class="cap"><span><b>${M.n}</b> k${k}</span></div></div>`}).join("")).join("");return}
+  const qa=location.hash.match(/^#qa(\d+)?$/);
+  if(qa){document.getElementById("loading").hidden=true;grid.style.gridTemplateColumns="repeat(6,1fr)";
+    grid.innerHTML=MARKS.map((M,m)=>qa[1]!==undefined&&m!==+qa[1]?"":[0,1,2,3,4,5].map(k=>{const dk=k===5,I=dk?inkDark(INKS[0]):INKS[[0,1,0,7,2][k]];return `<div class="tile"><div class="art" style="aspect-ratio:1;background:${dk?INKS[0].F:"#fff"}"><svg viewBox="-6 -6 112 112" style="left:6%;top:6%;width:88%;height:88%">${M.s(I,k,"q"+m+"_"+k)}</svg></div><div class="cap"><span><b>${M.n}</b> k${k}</span></div></div>`}).join("")).join("");return}
   const frag=document.createDocumentFragment();
   LOGOS.forEach(L=>{
     const t=document.createElement("div");t.className="tile";t.tabIndex=0;t.dataset.i=L.i;t.setAttribute("role","button");
-    t.setAttribute("aria-label",`${code(L.i)}: ${MARKS[L.m].n}, ${FONTS[L.font].lbl}`);
-    t.innerHTML=`<div class="art">${svgFor(L,"t"+L.i)}</div><div class="cap"><span><b>${code(L.i)}</b> ${MARKS[L.m].n}</span><span>${FONTS[L.font].sh}</span></div><button class="star${favs.has(L.i)?" on":""}" aria-label="Shortlist ${code(L.i)}" aria-pressed="${favs.has(L.i)}">★</button>`;
+    t.setAttribute("aria-label",`${code(L.i)}: ${nameOf(L)}, ${FONTS[L.font].lbl}`);
+    t.innerHTML=`<div class="art">${svgFor(L,"t"+L.i)}</div><div class="cap"><span><b>${code(L.i)}</b> ${nameOf(L)}</span><span>${FONTS[L.font].sh}</span></div><button class="star${favs.has(L.i)?" on":""}" aria-label="Shortlist ${code(L.i)}" aria-pressed="${favs.has(L.i)}">★</button>`;
     t.querySelector(".star").addEventListener("click",e=>{e.stopPropagation();toggleFav(L.i)});
     t.addEventListener("click",()=>openD(L.i));
     t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openD(L.i)}});
@@ -452,6 +528,10 @@ document.getElementById("copy").onclick=e=>{
   grid.querySelectorAll(".art svg").forEach(s=>fit(s));
   document.getElementById("loading").hidden=true;
   saveFavs();applyFilter();
+  if(location.hash==="#well")setMark(25);
+  if(location.hash==="#wellreview"){setMark(25);grid.style.gridTemplateColumns="repeat(2,1fr)"}
+  const only=location.hash.match(/^#only=([N\d,]+)$/);
+  if(only){const set=new Set(only[1].split(","));grid.querySelectorAll(".tile").forEach(t=>{t.hidden=!set.has(code(+t.dataset.i))});grid.style.gridTemplateColumns="repeat(2,1fr)";document.getElementById("count").textContent=`${set.size} shown`}
   if(location.hash&&/^#N\d{3}$/.test(location.hash)){const i=+location.hash.slice(2)-1;if(LOGOS[i])openD(i)}
 })();
 </script>
